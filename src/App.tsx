@@ -293,6 +293,34 @@ export function App() {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [userStatus, setUserStatus] = useState<'active' | 'pending'>('active');
+  const [isPinUnlocked, setIsPinUnlocked] = useState<boolean>(false);
+  const [pinInput, setPinInput] = useState<string>('');
+  const [pinErrorMsg, setPinErrorMsg] = useState<string | null>(null);
+
+  const handlePinPress = (digit: string) => {
+    if (pinInput.length < 4) {
+      const next = pinInput + digit;
+      setPinInput(next);
+      setPinErrorMsg(null);
+      if (next.length === 4) {
+        if (next === '8888') {
+          setIsPinUnlocked(true);
+          setPinErrorMsg(null);
+        } else {
+          setPinErrorMsg(language === 'en' ? 'Incorrect PIN (Hint: 8888)' : 'Code PIN incorrect (Indice : 8888)');
+          setTimeout(() => {
+            setPinInput('');
+            setPinErrorMsg(null);
+          }, 1500);
+        }
+      }
+    }
+  };
+
+  const handlePinClear = () => {
+    setPinInput('');
+    setPinErrorMsg(null);
+  };
 
   useEffect(() => {
     signOut(auth).catch(() => {});
@@ -1595,7 +1623,95 @@ export function App() {
           </div>
         </div>
 
-        {/* MOBILE HEADER - B&F PARCOURS LEATHER TEXTURE */}
+        {/* SECURE PIN ENTRY OVERLAY COMPONENT AT THE TOP OF THE APP UI */}
+        <div className="mb-6 p-4 sm:p-6 bg-stone-900 border-2 border-amber-600/60 rounded-2xl shadow-xl text-amber-100 relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-3">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-700/80 border border-amber-400 flex items-center justify-center text-amber-100 shadow">
+                <span className="material-symbols-outlined text-xl">lock</span>
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-base sm:text-lg text-amber-200">
+                  {isPinUnlocked ? (language === 'en' ? 'Dashboard Unlocked' : 'Tableau de bord déverrouillé') : (language === 'en' ? 'Secure Access · PIN Required' : 'Accès Sécurisé · Code PIN requis')}
+                </h3>
+                <p className="text-xs text-amber-300/80">
+                  {isPinUnlocked ? (language === 'en' ? 'Full access granted to the main dashboard & patient files.' : 'Accès complet autorisé au tableau de bord principal et au dossier patient.') : (language === 'en' ? 'Enter your 4-digit security PIN using the keypad below to unlock access.' : 'Veuillez saisir votre code PIN de sécurité via le clavier ci-dessous.')}
+                </p>
+              </div>
+            </div>
+
+            {isPinUnlocked ? (
+              <button
+                type="button"
+                onClick={() => { setIsPinUnlocked(false); setPinInput(''); }}
+                className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-amber-500/40 text-amber-200 text-xs font-bold transition cursor-pointer"
+              >
+                {language === 'en' ? 'Lock Dashboard' : 'Verrouiller'}
+              </button>
+            ) : (
+              <div className="flex items-center space-x-2 bg-stone-950 px-4 py-2 rounded-xl border border-amber-700/50">
+                <span className="text-xs text-amber-400 font-mono font-bold">PIN :</span>
+                <div className="flex space-x-1.5">
+                  {[0, 1, 2, 3].map((idx) => (
+                    <span
+                      key={idx}
+                      className={`w-3.5 h-3.5 rounded-full border border-amber-500/60 inline-flex items-center justify-center text-[10px] font-bold ${
+                        idx < pinInput.length ? 'bg-amber-400 text-stone-950' : 'bg-stone-900 text-stone-600'
+                      }`}
+                    >
+                      {idx < pinInput.length ? '•' : ''}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {pinErrorMsg && (
+            <div className="mb-3 px-3 py-1.5 rounded-lg bg-rose-950/80 border border-rose-600 text-rose-200 text-xs text-center font-bold">
+              {pinErrorMsg}
+            </div>
+          )}
+
+          {!isPinUnlocked && (
+            <div className="max-w-xs mx-auto bg-stone-950/90 p-4 rounded-2xl border border-amber-800/50 shadow-inner">
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
+                  <button
+                    key={digit}
+                    type="button"
+                    onClick={() => handlePinPress(digit)}
+                    className="h-12 rounded-xl bg-stone-800 hover:bg-amber-700 hover:text-stone-950 text-amber-100 font-mono font-bold text-lg shadow transition active:scale-95 border border-stone-700 cursor-pointer flex items-center justify-center"
+                  >
+                    {digit}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handlePinPress('0')}
+                  className="h-12 rounded-xl bg-stone-800 hover:bg-amber-700 hover:text-stone-950 text-amber-100 font-mono font-bold text-lg shadow transition active:scale-95 border border-stone-700 cursor-pointer flex items-center justify-center"
+                >
+                  0
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePinClear}
+                  className="h-12 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-200 font-semibold text-xs shadow transition active:scale-95 border border-rose-800/60 cursor-pointer flex items-center justify-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-sm">backspace</span>
+                  <span>Effacer</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {isPinUnlocked && (
+          <>
+            {/* MOBILE HEADER - B&F PARCOURS LEATHER TEXTURE */}
+
         <div className="block sm:hidden mb-4 leather-texture text-white shadow-md rounded-2xl border border-amber-500/40 relative overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center space-x-3">
@@ -4009,6 +4125,8 @@ export function App() {
               </div>
             </div>
           </div>
+        )}
+          </>
         )}
       </main>
     </div>
