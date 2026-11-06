@@ -1,0 +1,6 @@
+{
+  "name": "Pregnancy Calendar · Fatou · RMA of New York",
+  "description": "Calendrier de grossesse artisanal en bois et laiton avec suivi obstétrique personnalisé, modélisation 3D in utero en temps réel et narration vocale en français.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

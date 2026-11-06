@@ -1,0 +1,2117 @@
+<!DOCTYPE html><html lang="fr"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Pregnancy Calendar · Fatou · RMA of New York</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&amp;family=Playfair+Display:ital,wght@0,600;0,800;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          serif: ['"Playfair Display"', 'Georgia', 'serif'],
+          display: ['"Cinzel"', 'serif'],
+          sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body {
+    background-color: #24160a;
+    background-image: radial-gradient(ellipse at 50% 10%, rgba(214, 172, 120, 0.18), transparent 75%), linear-gradient(135deg, #1f1308 0%, #150b04 100%);
+    color: #3b2814;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .wood-board {
+    background-color: #e6cead;
+    background-image: 
+      repeating-linear-gradient(90deg, rgba(162, 117, 68, 0.04) 0px, rgba(162, 117, 68, 0.04) 3px, transparent 3px, transparent 8px),
+      radial-gradient(ellipse at 35% 20%, rgba(255, 237, 212, 0.6) 0%, rgba(220, 189, 149, 0.9) 70%, #ba915c 100%);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 245, 225, 0.5), inset 0 -10px 25px rgba(92, 59, 24, 0.35);
+    border: 12px solid #b88f5b;
+  }
+  .engraved-wood-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: #4a2c10;
+    text-shadow: -1px -1px 1px rgba(255, 245, 230, 0.7), 1px 2px 2px rgba(45, 25, 6, 0.65);
+  }
+  .brass-knob {
+    background: radial-gradient(circle at 35% 35%, #fff2be, #c59f48 55%, #6a4f15 100%);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.8);
+  }
+  .brass-hinge {
+    background: linear-gradient(180deg, #d3b169 0%, #8c6a28 50%, #eccb82 100%);
+  }
+  .recessed-groove {
+    background-color: #c9a473;
+    box-shadow: inset 2px 3px 6px rgba(40, 20, 5, 0.55), inset -1px -1px 3px rgba(255, 245, 225, 0.4);
+  }
+  .parchment-sheet {
+    background: #faf4e8 linear-gradient(to bottom, #fdf9f0 0%, #f4ebd6 100%);
+    box-shadow: inset 0 0 12px rgba(175, 137, 85, 0.25), 0 4px 10px rgba(0, 0, 0, 0.15);
+    border: 1px solid #d7c39d;
+  }
+  .door-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .door-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  }
+  .door-item.is-active-week {
+    border-color: #854d0e;
+    box-shadow: 0 0 0 3px #d97706, 0 8px 16px rgba(0,0,0,0.35);
+    transform: translateY(-2px);
+  }
+  input[type=range].wooden-slider {
+    -webkit-appearance: none;
+    background: #8b5f30;
+    border-radius: 9999px;
+    height: 10px;
+    box-shadow: inset 1px 2px 4px rgba(25, 12, 3, 0.8);
+  }
+  input[type=range].wooden-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fde8af, #c2994c 60%, #684813 100%);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    border: 2px solid #583c13;
+  }
+  /* Animation pulsation fluide pour le flux Doppler in utero */
+  @keyframes fetalPulse {
+    0%, 100% { opacity: 0.35; transform: scale(0.98); }
+    50% { opacity: 0.75; transform: scale(1.02); }
+  }
+  .fetal-halo {
+    animation: fetalPulse 1.8s infinite ease-in-out;
+  }
+  /* Barres d'animation audio onde sonore */
+  @keyframes soundBar {
+    0%, 100% { height: 4px; }
+    50% { height: 18px; }
+  }
+  .sound-bar {
+    animation: soundBar 0.75s ease-in-out infinite;
+  }
+  .sound-bar:nth-child(2) { animation-delay: 0.12s; }
+  .sound-bar:nth-child(3) { animation-delay: 0.25s; }
+  .sound-bar:nth-child(4) { animation-delay: 0.38s; }
+  .sound-bar:nth-child(5) { animation-delay: 0.18s; }
+
+  /* Animation onde cardiaque Doppler */
+  @keyframes dopplerPulse {
+    0% { transform: scale(0.95); opacity: 0.4; }
+    50% { transform: scale(1.15); opacity: 0.9; }
+    100% { transform: scale(0.95); opacity: 0.4; }
+  }
+  .doppler-ring {
+    animation: dopplerPulse 0.76s infinite ease-in-out;
+  }
+
+  /* Style d'accentuation dynamique mot par mot pour la transcription en direct */
+  .karaoke-word {
+    transition: all 0.15s ease-out;
+    padding: 0.05rem 0.2rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+  }
+  .karaoke-word.active-word {
+    background-color: #854d0e;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    transform: scale(1.06);
+  }
+  .karaoke-word.past-word {
+    color: #593210;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body class="min-h-screen py-6 px-3 sm:px-6 lg:px-8 flex flex-col items-center justify-start">
+<!-- Cadre principal en bois -->
+<main class="w-full max-w-[1440px] wood-board rounded-3xl p-5 sm:p-8 lg:p-10 relative overflow-hidden" data-purpose="pregnancy-calendar-board">
+<!-- Rivets supérieurs en laiton -->
+<div class="flex justify-between items-center px-4 -mt-3 mb-4 opacity-75">
+<div class="flex items-center space-x-2">
+<span class="w-3.5 h-3.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+<span class="w-3.5 h-3.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+</div>
+<div class="flex items-center space-x-2">
+<span class="w-3.5 h-3.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+<span class="w-3.5 h-3.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+</div>
+</div>
+<!-- En-tête gravé -->
+<header class="text-center pb-6 border-b border-amber-800/25 relative">
+<div class="inline-flex items-center justify-center space-x-3 mb-1">
+<span class="h-px w-12 sm:w-24 bg-amber-900/40"></span>
+<span class="text-xs uppercase tracking-widest font-semibold text-amber-900/70">Protocole FET · Suivi Obstétrique Personnalisé</span>
+<span class="h-px w-12 sm:w-24 bg-amber-900/40"></span>
+</div>
+<h1 class="text-3xl sm:text-5xl lg:text-6xl font-black engraved-wood-title tracking-tight mb-2">
+      Pregnancy Calendar
+    </h1>
+<p class="font-serif italic text-base sm:text-xl font-medium tracking-wide text-amber-900">
+      Fatou • Transfert Blastocyste J5 Euploïde Garçon • RMA of New York • Nov 2026 – Juil 2027
+    </p>
+<!-- Badges de télémétrie obstétricale -->
+<div class="mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium">
+<span class="px-3.5 py-1.5 rounded-full bg-amber-900/10 border border-amber-800/30 text-amber-950 font-semibold flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+        Statut : FET Réussi (J5 Euploïde)
+      </span>
+<span class="px-3.5 py-1.5 rounded-full bg-amber-900/10 border border-amber-800/30 text-amber-950">
+        DDR Médicale : <strong>15 Octobre 2026</strong>
+</span>
+<span class="px-3.5 py-1.5 rounded-full bg-amber-900/10 border border-amber-800/30 text-amber-950">
+        DPA Estimée : <strong>22 Juillet 2027</strong>
+</span>
+<span class="px-3.5 py-1.5 rounded-full bg-amber-800/20 border border-amber-800/40 text-amber-950 font-bold" id="banner-active-week-label">Semaine active : S12 (Prune Juteuse)</span>
+</div>
+</header>
+<!-- Disposition principale : 40 Volets + Niche Intégrée Vidéo & 3D Directe (Aucune Popup) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-7 items-start">
+<!-- GAUCHE : Grille des 40 Volets en bois (6 colonnes) -->
+<div class="lg:col-span-6 flex flex-col space-y-4">
+<div class="flex items-center justify-between px-1">
+<h2 class="font-serif font-bold text-xl sm:text-2xl text-amber-950 flex items-center gap-2">
+<span class="">Volets des 40 Semaines</span>
+</h2>
+<span class="text-xs font-medium text-amber-900 bg-amber-900/10 px-2.5 py-1 rounded-full border border-amber-900/20 flex items-center gap-1">
+<span class="">✨ Cliquez pour charger directement à droite</span>
+</span>
+</div>
+<!-- Grille des 40 volets -->
+<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5 sm:gap-3 p-3.5 sm:p-4 rounded-2xl recessed-groove max-h-[720px] overflow-y-auto" id="doors-grid">
+<!-- Rempli dynamiquement en JS -->
+<div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="1">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S1</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🌱</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Graine de Pavot</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(1, true);">
+          <span class="">S1</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="2">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S2</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🌾</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Graine de Sésame</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(2, true);">
+          <span class="">S2</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="3">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S3</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">💧</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Graine de Chia</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(3, true);">
+          <span class="">S3</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="4">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S4</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">✨</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Graine de Pavot</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(4, true);">
+          <span class="">S4</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="5">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S5</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍏</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Pépin de Pomme</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(5, true);">
+          <span class="">S5</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="6">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S6</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🫘</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Pois Chiche</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(6, true);">
+          <span class="">S6</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="7">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S7</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🫐</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Myrtille Bleue</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(7, true);">
+          <span class="">S7</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="8">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S8</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍓</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Framboise Gourmande</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(8, true);">
+          <span class="">S8</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="9">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S9</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🫒</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Olive Verte</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(9, true);">
+          <span class="">S9</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="10">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S10</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍓</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Fraise des Bois</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(10, true);">
+          <span class="">S10</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="11">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S11</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🪴</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Figue Douce</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(11, true);">
+          <span class="">S11</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5] is-active-week" data-week="12">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S12</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🫐</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Prune Juteuse</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(12, true);">
+          <span class="">S12</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]" data-week="13">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S13</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍑</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Pêche Veloutée</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(13, true);">
+          <span class="">S13</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="14">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S14</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍋</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Citron Meyer</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(14, true);">
+          <span class="">S14</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="15">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S15</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍎</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Pomme Dorée</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(15, true);">
+          <span class="">S15</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="16">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S16</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🥑</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Avocat Hass</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(16, true);">
+          <span class="">S16</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="17">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S17</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍐</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Poire Conférence</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(17, true);">
+          <span class="">S17</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="18">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S18</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🫑</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Poivron Jaune</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(18, true);">
+          <span class="">S18</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="19">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S19</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🥭</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Mangue Mûre</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(19, true);">
+          <span class="">S19</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="20">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S20</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍌</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Petite Banane</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(20, true);">
+          <span class="">S20</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="21">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S21</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🥕</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Carotte Géante</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(21, true);">
+          <span class="">S21</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="22">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S22</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🫐</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Papaye</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(22, true);">
+          <span class="">S22</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="23">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S23</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍆</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Aubergine Ronde</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(23, true);">
+          <span class="">S23</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="24">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S24</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍈</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Cantaloup Parfumé</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(24, true);">
+          <span class="">S24</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="25">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S25</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🥦</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Chou-Fleur</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(25, true);">
+          <span class="">S25</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="26">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S26</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🥒</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Courgette Ronde</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(26, true);">
+          <span class="">S26</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]" data-week="27">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S27</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🥬</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Chou Kale</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(27, true);">
+          <span class="">S27</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="28">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S28</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍍</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Gros Ananas</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(28, true);">
+          <span class="">S28</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="29">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S29</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🎃</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Courge Butternut</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(29, true);">
+          <span class="">S29</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="30">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S30</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🥬</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Chou Blanc</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(30, true);">
+          <span class="">S30</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="31">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S31</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🥥</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Noix de Coco</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(31, true);">
+          <span class="">S31</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="32">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S32</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🎃</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Courge Spaghetti</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(32, true);">
+          <span class="">S32</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="33">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S33</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍍</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Ananas Victoria</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(33, true);">
+          <span class="">S33</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="34">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S34</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍈</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Cantaloup Mûr</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(34, true);">
+          <span class="">S34</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="35">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S35</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍈</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Melon Miel</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(35, true);">
+          <span class="">S35</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="36">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S36</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🫐</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Grande Papaye</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(36, true);">
+          <span class="">S36</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="37">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S37</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍉</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Pastèque Royale</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(37, true);">
+          <span class="">S37</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="38">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S38</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🎃</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Citrouille Ronde</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(38, true);">
+          <span class="">S38</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="39">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S39</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍉</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Grande Pastèque</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(39, true);">
+          <span class="">S39</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div><div class="door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none bg-[#f7e0b2] text-[#493517] border-[#e4c489]" data-week="40">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S40</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">🍉</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">Pastèque Sucre</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(40, true);">
+          <span class="">S40</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      </div></div>
+<!-- Légende des trimestres -->
+<div class="flex flex-wrap items-center justify-between text-xs text-amber-900/80 px-2 pt-1 font-medium gap-2">
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-[#c5dac5] border border-stone-400"></span> T1 (S1-S13) Vert Sauge</span>
+<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-[#f5d0bd] border border-stone-400"></span> T2 (S14-S27) Pêche Douce</span>
+<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-[#f8e0ad] border border-stone-400"></span> T3 (S28-S40) Miel Doré</span>
+</div>
+<span class="flex items-center gap-1.5 font-semibold text-amber-900"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span> Rendu direct dans la niche</span>
+</div>
+</div>
+<!-- DROITE : Niche Centrale 3D & Lecteur Vidéo In Utero Pleinement Intégré (6 colonnes, SANS POP-UP) -->
+<div class="lg:col-span-6 flex flex-col space-y-4">
+<div class="parchment-sheet rounded-2xl p-5 sm:p-6 border-2 border-[#bfa278] relative shadow-lg">
+<!-- Écusson supérieur de laiton -->
+<div class="absolute -top-3.5 right-6 px-3 py-0.5 brass-hinge rounded text-[11px] font-bold text-amber-950 uppercase tracking-widest shadow flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+<span class="">Niche Centrale • Vidéo &amp; 3D Directe</span>
+</div>
+<!-- En-tête de la niche latérale -->
+<div class="border-b border-amber-900/15 pb-4 mb-3 flex flex-col sm:flex-row justify-between sm:items-start gap-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold uppercase tracking-wider text-amber-800" id="display-trimester-tag">Premier Trimestre</span>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-900/10 text-amber-900 border border-amber-900/20">Blastocyste J5 Garçon (46, XY)</span>
+</div>
+<h3 class="text-2xl sm:text-3xl font-extrabold font-serif text-amber-950 mt-0.5" id="display-week-title">SEMAINE 12</h3>
+<p class="text-xs text-amber-900 font-medium" id="display-date-range">31 Déc - 06 Jan 2027 • Étape Garçon J5</p>
+</div>
+<div class="sm:text-right bg-amber-900/5 sm:bg-transparent p-2.5 sm:p-0 rounded-xl border sm:border-0 border-amber-900/10">
+<span class="text-[11px] font-semibold text-amber-800 block uppercase">Biométrie &amp; Échelle</span>
+<div class="flex sm:flex-col items-center sm:items-end justify-between gap-1">
+<span class="text-base sm:text-lg font-bold font-serif text-amber-950" id="display-size-metrics">5.4 cm · 14 g</span>
+<span class="text-xs text-amber-900 font-medium italic" id="display-fruit-compare">Taille : Prune Juteuse</span>
+</div>
+</div>
+</div>
+<!-- MODULE AUDIO DE NARRATION VOCALE & TRANSCRIPTION EN FRANÇAIS (DIRECTE ET NATURELLE - VOIX MASCULINE) -->
+<div class="bg-gradient-to-r from-amber-950/15 via-amber-900/20 to-amber-950/15 border-2 border-amber-800/40 rounded-xl p-3.5 mb-3 shadow-inner">
+<div class="flex flex-col sm:flex-row items-center justify-between gap-2.5">
+<div class="flex flex-wrap items-center gap-2">
+<!-- Bouton Principal Lecture Voix Française avec onclick direct -->
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold text-xs shadow-md transition transform active:scale-95 border border-amber-600/50 cursor-pointer" id="btn-audio-narrate" onclick="triggerMainNarrationClick()" type="button">
+<span class="material-symbols-outlined text-base" id="icon-voice-action">play_arrow</span>
+<span id="text-voice-action" class="">Écouter la narration posée (Français naturel)</span>
+</button>
+<!-- Bouton Rejouer -->
+<button class="w-8 h-8 rounded-lg bg-amber-900/20 hover:bg-amber-900/35 border border-amber-900/30 flex items-center justify-center text-amber-950 transition cursor-pointer" id="btn-audio-replay" onclick="replayNarrationCurrentWeek()" title="Réécouter depuis le début" type="button">
+<span class="material-symbols-outlined text-sm">replay</span>
+</button>
+<!-- Badge statut & ondes vocales animées -->
+<div class="hidden items-center space-x-1 px-2.5 py-1 bg-amber-800/25 rounded-md border border-amber-800/40" id="audio-wave-container">
+<span class="sound-bar w-1 bg-amber-900 rounded-full"></span>
+<span class="sound-bar w-1 bg-amber-900 rounded-full"></span>
+<span class="sound-bar w-1 bg-amber-900 rounded-full"></span>
+<span class="sound-bar w-1 bg-amber-900 rounded-full"></span>
+<span class="sound-bar w-1 bg-amber-900 rounded-full"></span>
+<span class="text-[10px] font-bold text-amber-950 ml-1.5 animate-pulse">🎙️ Voix humaine posée &amp; chaleureuse...</span>
+</div>
+<span class="text-[11px] font-semibold text-amber-900/90 italic flex items-center gap-1" id="audio-idle-badge"><span class="w-2 h-2 rounded-full bg-emerald-600"></span> <span class="">▶ Écouter en <span id="audio-style-subtext" class="font-bold not-italic text-amber-950">Français Naturel (débit posé &amp; chaleureux)</span></span></span>
+</div>
+<!-- Toggle d'Auto-Lecture vocale au clic -->
+<div class="flex items-center space-x-2 text-xs text-amber-950 font-medium">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" id="toggle-voice-autoplay" type="checkbox">
+<div class="w-8 h-4 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-800"></div>
+</label>
+<span class="text-[11px] text-amber-900 whitespace-nowrap">Auto-lecture au clic</span>
+</div>
+</div>
+<!-- CARTE DE TRANSCRIPTION EN DIRECT ANIMÉE (KARAOKÉ / SUIVI DE MOTS) -->
+<div class="mt-3 bg-amber-50/90 rounded-lg p-3 border border-amber-900/25 shadow-sm">
+<div class="flex items-center justify-between pb-1.5 border-b border-amber-900/15 mb-2">
+<div class="flex items-center space-x-1.5 text-[11px] font-bold text-amber-950">
+<span class="material-symbols-outlined text-sm text-amber-800">graphic_eq</span>
+<span class="">Transcription intégrale en direct (Français) :</span>
+</div>
+<div class="flex items-center space-x-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-900/15 text-amber-950" id="audio-lang-indicator">Voix : Humaine naturelle (fr-FR)</span>
+<button class="px-2 py-0.5 bg-amber-900/20 hover:bg-amber-900/35 rounded text-[10px] font-bold text-amber-950 flex items-center gap-1 transition" onclick="triggerMainNarrationClick()" type="button">
+<span class="material-symbols-outlined text-[11px]">record_voice_over</span> Lire
+    </button>
+</div>
+</div>
+<!-- Zone défilement de texte avec mise en valeur interactive -->
+<div class="text-xs sm:text-[13px] leading-relaxed text-amber-950 font-serif min-h-[58px] max-h-28 overflow-y-auto pr-1" id="audio-live-transcription-box"><span class="karaoke-word" id="kw-0">Semaine </span><span class="karaoke-word" id="kw-1">12 </span><span class="karaoke-word" id="kw-2">de </span><span class="karaoke-word" id="kw-3">votre </span><span class="karaoke-word" id="kw-4">grossesse. </span><span class="karaoke-word" id="kw-5">Votre </span><span class="karaoke-word" id="kw-6">petit </span><span class="karaoke-word" id="kw-7">garçon </span><span class="karaoke-word" id="kw-8">mesure </span><span class="karaoke-word" id="kw-9">environ </span><span class="karaoke-word" id="kw-10">5.4 </span><span class="karaoke-word" id="kw-11">cm </span><span class="karaoke-word" id="kw-12">· </span><span class="karaoke-word" id="kw-13">14 </span><span class="karaoke-word" id="kw-14">g, </span><span class="karaoke-word" id="kw-15">ce </span><span class="karaoke-word" id="kw-16">qui </span><span class="karaoke-word" id="kw-17">correspond </span><span class="karaoke-word" id="kw-18">à </span><span class="karaoke-word" id="kw-19">la </span><span class="karaoke-word" id="kw-20">taille </span><span class="karaoke-word" id="kw-21">d'une </span><span class="karaoke-word" id="kw-22">prune </span><span class="karaoke-word" id="kw-23">juteuse. </span><span class="karaoke-word" id="kw-24">Développement </span><span class="karaoke-word" id="kw-25">in </span><span class="karaoke-word" id="kw-26">utero </span><span class="karaoke-word" id="kw-27">: </span><span class="karaoke-word" id="kw-28">Bébé </span><span class="karaoke-word" id="kw-29">réagit </span><span class="karaoke-word" id="kw-30">aux </span><span class="karaoke-word" id="kw-31">caresses </span><span class="karaoke-word" id="kw-32">extérieures </span><span class="karaoke-word" id="kw-33">et </span><span class="karaoke-word" id="kw-34">serre </span><span class="karaoke-word" id="kw-35">parfois </span><span class="karaoke-word" id="kw-36">ses </span><span class="karaoke-word" id="kw-37">petits </span><span class="karaoke-word" id="kw-38">poings. </span><span class="karaoke-word" id="kw-39">Sur </span><span class="karaoke-word" id="kw-40">le </span><span class="karaoke-word" id="kw-41">plan </span><span class="karaoke-word" id="kw-42">morphologique </span><span class="karaoke-word" id="kw-43">: </span><span class="karaoke-word" id="kw-44">LCC </span><span class="karaoke-word" id="kw-45">de </span><span class="karaoke-word" id="kw-46">54 </span><span class="karaoke-word" id="kw-47">mm. </span><span class="karaoke-word" id="kw-48">Les </span><span class="karaoke-word" id="kw-49">reins </span><span class="karaoke-word" id="kw-50">fœtaux </span><span class="karaoke-word" id="kw-51">fonctionnent </span><span class="karaoke-word" id="kw-52">et </span><span class="karaoke-word" id="kw-53">les </span><span class="karaoke-word" id="kw-54">cordes </span><span class="karaoke-word" id="kw-55">vocales </span><span class="karaoke-word" id="kw-56">se </span><span class="karaoke-word" id="kw-57">différencient. </span><span class="karaoke-word" id="kw-58">Conseil </span><span class="karaoke-word" id="kw-59">de </span><span class="karaoke-word" id="kw-60">bien-être </span><span class="karaoke-word" id="kw-61">: </span><span class="karaoke-word" id="kw-62">Profitez </span><span class="karaoke-word" id="kw-63">de </span><span class="karaoke-word" id="kw-64">cette </span><span class="karaoke-word" id="kw-65">étape </span><span class="karaoke-word" id="kw-66">clé </span><span class="karaoke-word" id="kw-67">rassurante </span><span class="karaoke-word" id="kw-68">pour </span><span class="karaoke-word" id="kw-69">partager </span><span class="karaoke-word" id="kw-70">votre </span><span class="karaoke-word" id="kw-71">joie </span><span class="karaoke-word" id="kw-72">avec </span><span class="karaoke-word" id="kw-73">vos </span><span class="karaoke-word" id="kw-74">proches. </span></div>
+</div>
+</div>
+<!-- LECTEUR ÉCHOGRAPHIQUE & CANVAS 3D / ILLUSTRATION RÉALISTE IN UTERO -->
+<div class="relative w-full rounded-2xl overflow-hidden bg-stone-950 shadow-2xl border-2 border-amber-900/60 select-none group">
+<!-- Ambiance in utero chaude, parois utérines transluminescentes et sac amniotique -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-950/70 via-rose-950/90 to-stone-950 pointer-events-none"></div>
+<!-- Commutateur de vue : 3D Interactif vs Illustration Réaliste Anatomique HD -->
+<div class="absolute top-2.5 left-1/2 -translate-x-1/2 z-30 flex items-center bg-stone-900/85 backdrop-blur-md p-0.5 rounded-lg border border-amber-600/40 text-[10px] font-semibold text-amber-200">
+<button class="px-2.5 py-1 rounded bg-amber-800/80 text-amber-50 shadow font-bold transition flex items-center gap-1" id="toggle-view-3d" type="button">
+<span class="material-symbols-outlined text-xs">view_in_ar</span> 3D Temps Réel
+  </button>
+<button class="px-2.5 py-1 rounded text-amber-300 hover:text-amber-100 transition flex items-center gap-1" id="toggle-view-art" type="button">
+<span class="material-symbols-outlined text-xs">auto_awesome</span> Illustration HD Womb
+  </button>
+</div>
+<!-- Écran 3D Three.js interactif (Modélisation utérine réaliste) -->
+<div class="w-full h-64 sm:h-72 cursor-grab active:cursor-grabbing relative z-10" id="threejs-container-womb-wood"><canvas width="484" height="288" style="display: block; width: 484px; height: 288px;"></canvas></div>
+<!-- Vue Illustration Réaliste HD In Utero (Alternative Anatomique Dynamique) -->
+<div class="hidden absolute inset-0 z-15 bg-gradient-to-b from-[#2a0e08] via-[#1c0805] to-[#120504] flex items-center justify-center p-4" id="artistic-womb-view">
+<div class="relative w-full h-full flex flex-col items-center justify-center text-center">
+<!-- Halo amniotique vasculaire lumineux -->
+<div class="absolute w-56 h-56 rounded-full bg-gradient-to-br from-rose-600/25 via-amber-600/20 to-transparent blur-xl doppler-ring pointer-events-none"></div>
+<div class="relative z-10 p-4 border border-rose-400/25 rounded-2xl bg-black/40 backdrop-blur-sm max-w-sm">
+<div class="w-16 h-16 mx-auto rounded-full bg-amber-950/60 border border-rose-500/40 flex items-center justify-center text-3xl shadow-inner mb-2" id="womb-icon-display">🫐</div>
+<h4 class="text-sm font-bold text-amber-100 font-serif" id="womb-art-title">Illustration Médicale In Utero · Semaine 12</h4>
+<p class="text-[11px] text-amber-200/85 mt-1 leading-relaxed font-serif italic" id="womb-art-desc">Bébé réagit aux caresses extérieures et serre parfois ses petits poings. (Taille fœtale estimée : 5.4 cm · 14 g, comparable à une prune juteuse).</p>
+<div class="mt-2 pt-2 border-t border-amber-500/20 flex justify-center items-center gap-3 text-[10px] font-mono text-rose-300">
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span> Cordon spiralé</span>
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Échange placentaire optimal</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Incrustations télémétriques échographiques -->
+<div class="absolute top-2.5 left-2.5 z-20 pointer-events-none bg-black/60 backdrop-blur-md px-2.5 py-1.5 rounded-lg text-[10px] sm:text-[11px] text-amber-100 font-mono flex flex-col space-y-0.5 border border-amber-500/20">
+<div class="flex items-center space-x-1.5">
+<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+<span class="">Cœur : <strong class="text-rose-300 font-bold" id="fetal-heart-rate">158 bpm</strong></span>
+</div>
+<div class="text-amber-300/80 text-[10px]" id="fetal-age-telemetry">ÂGE : S12 (12 SA)</div>
+</div>
+<div class="absolute top-2.5 right-2.5 z-20 pointer-events-none bg-black/60 backdrop-blur-md px-2.5 py-1.5 rounded-lg text-right text-[10px] sm:text-[11px] font-mono text-amber-200/90 border border-amber-500/20">
+<div class="flex items-center justify-end gap-1.5">
+<span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+<span class="text-red-400 font-bold tracking-wider">LIVE HD-4D</span>
+</div>
+<span class="text-amber-300/80" id="fetal-live-metrics">5.4 cm · 14 g · Prune Juteuse</span>
+</div>
+<!-- Avatar / Fruit & Effet liquide in utero -->
+<div class="absolute inset-0 pointer-events-none flex items-center justify-center z-10 opacity-30">
+<div class="w-48 h-48 rounded-full border border-amber-500/20 fetal-halo flex items-center justify-center">
+<span class="text-6xl filter drop-shadow" id="screen-fruit-avatar">🫐</span>
+</div>
+</div>
+<!-- Barre de commande multimédia directement intégrée -->
+<div class="relative z-20 bg-stone-950/95 backdrop-blur-md px-3 sm:px-4 py-2 border-t border-amber-900/50 flex flex-col space-y-1.5">
+<div class="w-full flex items-center space-x-2">
+<span class="text-[10px] font-mono text-amber-300" id="video-timecode-cur">00:12</span>
+<input class="w-full h-1.5 bg-amber-950 rounded-lg appearance-none cursor-pointer accent-amber-500" id="video-scrubber" max="100" min="0" type="range" value="30">
+<span class="text-[10px] font-mono text-amber-400/70" id="video-timecode-tot">00:40</span>
+</div>
+<div class="flex flex-wrap items-center justify-between text-xs text-amber-200 gap-2">
+<div class="flex items-center space-x-2.5">
+<button class="w-7 h-7 rounded-full bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/40 flex items-center justify-center text-amber-200 transition cursor-pointer" id="inline-video-play-btn" type="button">
+<svg class="w-3.5 h-3.5" fill="currentColor" id="play-pause-icon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+</button>
+<span class="text-[11px] font-semibold text-amber-100 flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+<span id="video-status-text" class="">Flux Écho 3D In Utero Actif</span>
+</span>
+</div>
+<!-- Doppler Audio Synthétiseur Interactif -->
+<div class="flex items-center space-x-2">
+<button class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 text-[11px] text-rose-200 font-semibold transition shadow cursor-pointer" id="btn-toggle-doppler-sound" type="button">
+<span class="material-symbols-outlined text-xs text-rose-400">favorite</span>
+<span id="doppler-sound-label" class="">Doppler Cardiaque (158 bpm)</span>
+</button>
+<button class="bg-amber-900/30 hover:bg-amber-900/50 px-2 py-0.5 rounded text-[10px] border border-amber-700/40 text-amber-200 cursor-pointer" id="btn-reset-cam" type="button">
+    Vue Initiale
+  </button>
+<span class="bg-amber-950 px-2 py-0.5 rounded border border-amber-800/40 text-amber-300 font-mono text-[10px]">Pivoter 360°</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Badges Biométriques Directs -->
+<div class="grid grid-cols-3 gap-2 text-center text-xs font-serif mt-3.5">
+<div class="p-2 bg-amber-900/10 rounded-xl border border-amber-900/20">
+<span class="block text-[10px] font-sans font-semibold text-amber-800 uppercase">Longueur Cranio-Caudale</span>
+<strong class="text-xs sm:text-sm text-amber-950" id="badge-lcc">5.4 cm</strong>
+</div>
+<div class="p-2 bg-amber-900/10 rounded-xl border border-amber-900/20">
+<span class="block text-[10px] font-sans font-semibold text-amber-800 uppercase">Poids Estimé</span>
+<strong class="text-xs sm:text-sm text-amber-950" id="badge-weight">14 g</strong>
+</div>
+<div class="p-2 bg-amber-900/10 rounded-xl border border-amber-900/20">
+<span class="block text-[10px] font-sans font-semibold text-amber-800 uppercase">Équivalence Fruit</span>
+<strong class="text-xs sm:text-sm text-amber-950" id="badge-fruit">Prune Juteuse</strong>
+</div>
+</div>
+<!-- Détails Cliniques & Explications en Français directement sous la vidéo -->
+<div class="mt-4 space-y-3">
+<!-- Développement in utero -->
+<div class="bg-amber-900/5 p-3.5 rounded-xl border border-amber-900/15">
+<h4 class="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1 flex items-center justify-between font-sans">
+<span class="flex items-center gap-1.5">👶 Développement in utero cette semaine</span>
+<button class="text-[10px] text-amber-800 hover:underline font-bold flex items-center gap-1 cursor-pointer" onclick="speakCurrentWeekSection('inUtero')" type="button">
+<span class="material-symbols-outlined text-xs">volume_up</span> Lire
+</button>
+</h4>
+<p class="text-xs text-amber-950 leading-relaxed font-serif italic" id="display-desc-inutero">Bébé réagit aux caresses extérieures et serre parfois ses petits poings.</p>
+</div>
+<!-- Morphologie & Taille -->
+<div class="bg-amber-900/5 p-3.5 rounded-xl border border-amber-900/15">
+<h4 class="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1 flex items-center justify-between font-sans">
+<span class="flex items-center gap-1.5">🔬 Morphologie Fœtale &amp; Croissance</span>
+<button class="text-[10px] text-amber-800 hover:underline font-bold flex items-center gap-1 cursor-pointer" onclick="speakCurrentWeekSection('morpho')" type="button">
+<span class="material-symbols-outlined text-xs">volume_up</span> Lire
+</button>
+</h4>
+<p class="text-xs text-amber-950 leading-relaxed" id="display-desc-morpho">LCC de 54 mm. Les reins fœtaux fonctionnent et les cordes vocales se différencient.</p>
+</div>
+<!-- Démarches RMA & Obstétrique -->
+<div class="bg-amber-900/5 p-3.5 rounded-xl border border-amber-900/15">
+<h4 class="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1.5 flex items-center justify-between font-sans">
+<span class="flex items-center gap-1.5">📋 Démarches Cliniques &amp; Obstétrique</span>
+<button class="text-[10px] text-amber-800 hover:underline font-bold flex items-center gap-1 cursor-pointer" onclick="speakCurrentWeekSection('steps')" type="button">
+<span class="material-symbols-outlined text-xs">volume_up</span> Lire
+</button>
+</h4>
+<ul class="text-xs text-amber-950 space-y-1 pl-4 list-disc font-medium" id="display-steps-list"><li class="">Échographie T1 (Clarté nucale) déterminante.</li><li class="">Prise de sang DPNI de sécurité génétique.</li><li class="">Relais obstétrique officiel.</li></ul>
+</div>
+<!-- Conseils de Bien-Être -->
+<div class="bg-amber-900/5 p-3.5 rounded-xl border border-amber-900/15">
+<h4 class="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1 flex items-center justify-between font-sans">
+<span class="flex items-center gap-1.5">💖 Conseils de Bien-Être</span>
+<button class="text-[10px] text-amber-800 hover:underline font-bold flex items-center gap-1 cursor-pointer" onclick="speakCurrentWeekSection('advice')" type="button">
+<span class="material-symbols-outlined text-xs">volume_up</span> Lire
+</button>
+</h4>
+<p class="text-xs text-amber-950 leading-relaxed font-serif italic" id="display-desc-advice">Profitez de cette étape clé rassurante pour partager votre joie avec vos proches.</p>
+</div>
+<!-- Barre de saut rapide Semaine Précédente / Semaine Suivante -->
+<div class="flex items-center justify-between pt-2 border-t border-amber-900/15 text-xs text-amber-900">
+<span class="font-medium">Parcourir les semaines fœtales :</span>
+<div class="flex items-center space-x-2">
+<button class="px-3 py-1 bg-amber-900/10 hover:bg-amber-900/20 rounded-lg font-bold text-amber-950 transition flex items-center gap-1 cursor-pointer" id="btn-prev-week" type="button">
+                ← S-1
+              </button>
+<span class="font-bold text-amber-950 px-2 py-0.5 bg-amber-900/15 rounded-md" id="scrubber-week-val">S12 / 40</span>
+<button class="px-3 py-1 bg-amber-900/10 hover:bg-amber-900/20 rounded-lg font-bold text-amber-950 transition flex items-center gap-1 cursor-pointer" id="btn-next-week" type="button">
+                S+1 →
+              </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Molette & Cadrans mécaniques en bois -->
+<section class="mt-8 pt-6 border-t-2 border-amber-900/20">
+<div class="text-center mb-4">
+<h3 class="font-serif font-bold text-lg sm:text-xl text-amber-950">Cadran Mécanique de Gestation • Gravure Noyer &amp; Laiton</h3>
+<p class="text-xs text-amber-900/80">Faites glisser le curseur pour explorer les 40 semaines de développement</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center bg-amber-900/10 p-4 sm:p-5 rounded-2xl border border-amber-900/20 shadow-inner">
+<div class="flex flex-col items-center justify-center p-2">
+<span class="text-[11px] uppercase tracking-wider font-bold text-amber-900 mb-2">Molette Trimestres</span>
+<div class="w-14 h-14 rounded-full brass-knob border-2 border-amber-950 flex items-center justify-center shadow-lg cursor-pointer" id="trimester-knob">
+<div class="w-1.5 h-5 bg-amber-950 rounded-full transform transition-transform" id="trimester-needle" style="transform: rotate(45deg);"></div>
+</div>
+<span class="text-xs font-bold text-amber-950 mt-2" id="trimester-knob-label">T1 • 1er Trimestre</span>
+</div>
+<div class="md:col-span-2 flex flex-col justify-center px-3">
+<div class="flex justify-between items-center mb-1 text-xs font-semibold text-amber-950">
+<span class="">Semaine 1 (Nov '26)</span>
+<span class="text-sm font-bold text-amber-900 bg-amber-200/70 px-2 py-0.5 rounded" id="range-indicator">Semaine 12 (12 SA)</span>
+<span class="">Semaine 40 (Juil '27)</span>
+</div>
+<input class="wooden-slider w-full cursor-pointer" id="gestational-slider" max="40" min="1" type="range" value="12">
+<div class="flex justify-between text-[10px] text-amber-800/80 mt-1 font-mono">
+<span class="">Transfert FET</span>
+<span class="">Écho T1 (S12)</span>
+<span class="">Viabilité (S24)</span>
+<span class="">Terme (S40)</span>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center p-2">
+<span class="text-[11px] uppercase tracking-wider font-bold text-amber-900 mb-2">Jalon Actuel</span>
+<div class="w-14 h-14 rounded-full bg-amber-100 border-2 border-amber-900 flex items-center justify-center shadow-inner relative">
+<div class="w-1 h-6 bg-amber-900 rounded-full origin-bottom" id="milestone-dial-needle" style="transform: rotate(108deg);"></div>
+<div class="w-2.5 h-2.5 rounded-full brass-knob absolute"></div>
+</div>
+<span class="text-xs font-semibold text-amber-950 mt-2 text-center" id="milestone-dial-desc">Clarté Nucale T1</span>
+</div>
+</div>
+</section>
+<!-- Tiroirs Cliniques Dépliables -->
+<section class="mt-8">
+<div class="flex flex-wrap gap-2 border-b border-amber-900/30 pb-3" role="tablist">
+<button class="tab-btn px-4 py-2 rounded-t-xl bg-parchment-100 border border-[#cfb286] font-serif font-bold text-amber-950 text-sm" data-target="module-fet" type="button">
+        Calculateur Spécifique FET (RMA NY)
+      </button>
+<button class="tab-btn px-4 py-2 rounded-t-xl bg-amber-900/20 font-serif font-bold text-amber-900 text-sm hover:bg-parchment-100" data-target="module-timeline" type="button">
+        Chronologie Obstétrique RMA • 40 Semaines
+      </button>
+<button class="tab-btn px-4 py-2 rounded-t-xl bg-amber-900/20 font-serif font-bold text-amber-900 text-sm hover:bg-parchment-100" data-target="module-checklists" type="button">
+        Check-lists &amp; Formulaire Euploïde
+      </button>
+<button class="tab-btn px-4 py-2 rounded-t-xl bg-amber-900/20 font-serif font-bold text-amber-900 text-sm hover:bg-parchment-100" data-target="module-journal" type="button">
+        Carnet de Bord &amp; Traitements Fatou
+      </button>
+</div>
+<div class="parchment-sheet rounded-b-2xl rounded-tr-2xl p-5 sm:p-7 border border-[#cfb286]">
+<!-- Module Calculateur FET -->
+<div class="tab-pane space-y-6" id="module-fet">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-900/20 pb-4">
+<div>
+<span class="text-xs uppercase font-bold text-amber-800 tracking-wider">Protocole Spécialisé FIV / TEC</span>
+<h3 class="font-serif font-bold text-2xl text-amber-950">Calculateur DPA &amp; Cinétique Bêta-hCG • Blastocyste J5</h3>
+<p class="text-xs text-amber-900">Règles médicales pour embryon euploïde mâle congelé.</p>
+</div>
+<div class="px-4 py-2 bg-amber-900/10 rounded-lg text-right">
+<span class="text-xs text-amber-900 block font-medium">Date Prévisionnelle d'Accouchement (DPA)</span>
+<span class="text-lg font-extrabold text-amber-950 font-serif">22 Juillet 2027</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+<div class="p-3.5 bg-amber-950/5 rounded-xl border border-amber-900/10">
+<h4 class="font-bold text-amber-950 mb-1">Règles de Calcul FET (J5)</h4>
+<ul class="space-y-1 text-amber-900">
+<li class="">• Âge au transfert : <strong>2 Semaines + 5 Jours</strong></li>
+<li class="">• DDR Médicale calculée : <strong>15 Octobre 2026</strong></li>
+<li class="">• Date du Transfert : <strong>05 Novembre 2026</strong></li>
+<li class="">• Embryon : <strong>Blastocyste J5 Euploïde</strong></li>
+</ul>
+</div>
+<div class="p-3.5 bg-amber-950/5 rounded-xl border border-amber-900/10">
+<h4 class="font-bold text-amber-950 mb-1">Profil Génétique Embryonnaire</h4>
+<ul class="space-y-1 text-amber-900">
+<li class="">• Statut PGT-A : <strong>Euploïde normal (46, XY)</strong></li>
+<li class="">• Sexe : <strong>Garçon confirmé</strong></li>
+<li class="">• Qualité blastocyste : <strong>Grade AA Supérieur</strong></li>
+<li class="">• Centre de fertilité : <strong>RMA of New York</strong></li>
+</ul>
+</div>
+<div class="p-3.5 bg-amber-950/5 rounded-xl border border-amber-900/10">
+<h4 class="font-bold text-amber-950 mb-1">Surveillance Bêta-hCG Initiale</h4>
+<ul class="space-y-1 text-amber-900">
+<li class="">• J9 post-transfert : <strong>148 UI/L</strong> (Seuil positif &gt; 50)</li>
+<li class="">• J11 post-transfert : <strong>362 UI/L</strong> (Temps de doublement 37h)</li>
+<li class="">• J14 post-transfert : <strong>1 490 UI/L</strong> (Cinétique optimale)</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Module Chronologie -->
+<div class="tab-pane hidden space-y-4" id="module-timeline">
+<h3 class="font-serif font-bold text-2xl text-amber-950">Feuille de Route Obstétrique de Fatou (S1 à S40)</h3>
+<p class="text-xs text-amber-900">Jalons obligatoires de la procréation médicalement assistée jusqu'à la maternité.</p>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs text-amber-950 border-collapse">
+<thead>
+<tr class="bg-amber-900/15 border-b border-amber-900/30">
+<th class="py-2.5 px-3 font-bold">Semaine</th>
+<th class="py-2.5 px-3 font-bold">Étape Clinique &amp; Obstétrique</th>
+<th class="py-2.5 px-3 font-bold">Statut</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-amber-900/10">
+<tr><td class="py-2 px-3 font-bold">S1-S3</td><td class="py-2 px-3">Préparation endomètre &amp; Transfert Blastocyste J5</td><td class="py-2 px-3 text-emerald-800 font-bold">Validé ✓</td></tr>
+<tr><td class="py-2 px-3 font-bold">S6-S8</td><td class="py-2 px-3">Échographie précoce de viabilité (Activité cardiaque 120-160)</td><td class="py-2 px-3 text-emerald-800 font-bold">Validé ✓</td></tr>
+<tr><td class="py-2 px-3 font-bold">S10</td><td class="py-2 px-3">Arrêt progressif de la progestérone &amp; Transfert vers obstétrique</td><td class="py-2 px-3 text-emerald-800 font-bold">Validé ✓</td></tr>
+<tr class="bg-amber-200/40"><td class="py-2 px-3 font-bold">S12 (Active)</td><td class="py-2 px-3">Échographie T1 (Clarté nucale) + Bilan DPNI sanguin</td><td class="py-2 px-3 text-amber-900 font-bold">En cours ⏳</td></tr>
+<tr><td class="py-2 px-3 font-bold">S22</td><td class="py-2 px-3">Échographie morphologique de niveau II</td><td class="py-2 px-3 text-stone-600">À venir</td></tr>
+<tr><td class="py-2 px-3 font-bold">S40</td><td class="py-2 px-3">Date Prévue d'Accouchement (22 Juillet 2027)</td><td class="py-2 px-3 text-amber-900 font-bold">Terme</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Module Checklists -->
+<div class="tab-pane hidden space-y-4" id="module-checklists">
+<h3 class="font-serif font-bold text-2xl text-amber-950">Engagements Cliniques &amp; Progression</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+<label class="flex items-start space-x-2 p-3 bg-amber-950/5 rounded-xl border border-amber-900/10">
+<input checked="" class="mt-0.5 rounded text-amber-700" type="checkbox">
+<span class="text-amber-950 font-medium">Validation du protocole FET &amp; confirmation garçon euploïde.</span>
+</label>
+<label class="flex items-start space-x-2 p-3 bg-amber-950/5 rounded-xl border border-amber-900/10">
+<input checked="" class="mt-0.5 rounded text-amber-700" type="checkbox">
+<span class="text-amber-950 font-medium">Transfert blastocyste J5 sous contrôle échographique.</span>
+</label>
+<label class="flex items-start space-x-2 p-3 bg-amber-950/5 rounded-xl border border-amber-900/10">
+<input checked="" class="mt-0.5 rounded text-amber-700" type="checkbox">
+<span class="text-amber-950 font-medium">Bêta-hCG sériés confirmant une cinétique vigoureuse.</span>
+</label>
+<label class="flex items-start space-x-2 p-3 bg-amber-950/5 rounded-xl border border-amber-900/10">
+<input class="mt-0.5 rounded text-amber-700" type="checkbox">
+<span class="text-amber-950 font-medium">Échographie du premier trimestre (Clarté nucale à S12).</span>
+</label>
+</div>
+</div>
+<!-- Module Journal -->
+<div class="tab-pane hidden space-y-4" id="module-journal">
+<h3 class="font-serif font-bold text-2xl text-amber-950">Carnet Intime de Fatou</h3>
+<textarea class="w-full text-xs rounded-xl border border-amber-900/30 bg-white/80 p-3 text-amber-950" placeholder="Notez ici vos sensations et pensées pour votre petit garçon..." rows="3"></textarea>
+</div>
+</div>
+</section>
+<footer class="mt-8 pt-4 border-t border-amber-900/25 text-center text-xs text-amber-950/70 flex flex-col sm:flex-row justify-between items-center gap-2">
+<span class="">Conception Bois Noble d'Inspiration Artisanale · Édition Maternelle Personnalisée</span>
+<span class="">RMA of New York • Laboratoire d'Embryologie de Manhattan • DPA 22/07/2027</span>
+</footer>
+</main>
+<!-- SCRIPTS : Base de données des 40 semaines et Moteur 3D Three.js sans pop-up -->
+<script>
+  window.PREGNANCY_WEEKS = [
+    { week: 1,  trimester: 1, title: "Semaine 1", dates: "15 Oct - 21 Oct 2026", fruit: "Graine de Pavot", metrics: "0.1 mm · 0.01 g", heartRate: 0, icon: "🌱",
+      morpho: "Stade cellulaire précurseur. Préparation du lit vasculaire de l'endomètre utérin sous œstrogènes.",
+      inUtero: "La muqueuse utérine se gorge de nutriments pour offrir le nid parfait au futur blastocyste.",
+      steps: ["Date des dernières règles calculée.", "Préparation endométriale active.", "Prise quotidienne d'acide folique."],
+      advice: "Accordez-vous des moments de sérénité et privilégiez une hydratation abondante." },
+    { week: 2,  trimester: 1, title: "Semaine 2", dates: "22 Oct - 28 Oct 2026", fruit: "Graine de Sésame", metrics: "0.2 mm · 0.02 g", heartRate: 0, icon: "🌾",
+      morpho: "Optimisation de l'endomètre en aspect trilaminaire supérieur à 8 mm d'épaisseur.",
+      inUtero: "L'environnement utérin est parfaitement synchronisé pour la fenêtre d'implantation idéale.",
+      steps: ["Échographie de contrôle de l'endomètre.", "Vérification épaisseur supérieure à 8 millimètres.", "Introduction des injections de progestérone."],
+      advice: "Maintenez vos heures de traitement de façon très ponctuelle pour un synchronisme optimal." },
+    { week: 3,  trimester: 1, title: "Semaine 3", dates: "29 Oct - 04 Nov 2026", fruit: "Graine de Chia", metrics: "0.3 mm · 0.05 g", heartRate: 0, icon: "💧",
+      morpho: "Blastocyste expansé au stade d'éclosion pré-transfert au laboratoire d'embryologie.",
+      inUtero: "Repos complet de l'utérus avant l'introduction délicate du cathéter de transfert sous échographie.",
+      steps: ["Veille du transfert embryonnaire.", "Confirmation finale du blastocyste euploïde 46,XY.", "Hydratation optimale."],
+      advice: "Dormez d'un sommeil réparateur et conservez une confiance totale dans ce protocole." },
+    { week: 4,  trimester: 1, title: "Semaine 4", dates: "05 Nov - 11 Nov 2026", fruit: "Graine de Pavot", metrics: "1.0 mm · 0.1 g", heartRate: 90, icon: "✨",
+      morpho: "Implantation du blastocyste J5 euploïde. Le trophoblaste s'ancre délicatement dans l'endomètre.",
+      inUtero: "L'embryon mâle prend racine. Les premières sécrétions de l'hormone Bêta-hCG débutent.",
+      steps: ["Transfert blastocyste réussi avec succès.", "Nidation active dans la cavité utérine.", "Attente sereine du premier dosage hormonal."],
+      advice: "Marchez calmement au grand air et gardez les pieds et le bas du corps bien au chaud." },
+    { week: 5,  trimester: 1, title: "Semaine 5", dates: "12 Nov - 18 Nov 2026", fruit: "Pépin de Pomme", metrics: "2.0 mm · 0.2 g", heartRate: 110, icon: "🍏",
+      morpho: "Différenciation en disque embryonnaire. Le sac gestationnel est nettement visualisé.",
+      inUtero: "La vésicule vitelline nourrit l'embryon avant que le placenta ne prenne le relais.",
+      steps: ["Dosages Bêta-hCG sériés.", "Confirmation du doublement exponentiel des taux.", "Vérification de la progestérone."],
+      advice: "Fractionnez vos repas légers pour prévenir l'inconfort gastrique matinal." },
+    { week: 6,  trimester: 1, title: "Semaine 6", dates: "19 Nov - 25 Nov 2026", fruit: "Pois Chiche", metrics: "4.0 mm · 0.4 g", heartRate: 125, icon: "🫘",
+      morpho: "Fermeture du tube neural. Les ébauches des yeux et des oreilles apparaissent.",
+      inUtero: "Les toutes premières pulsations du petit tube cardiaque embryonnaire s'activent !",
+      steps: ["Premières pulsations cardiaques enregistrées.", "Poursuite du soutien en progestérone.", "Repos dès les premiers signes de fatigue."],
+      advice: "Écoutez votre corps : une courte sieste l'après-midi aide l'organisme à s'adapter." },
+    { week: 7,  trimester: 1, title: "Semaine 7", dates: "26 Nov - 02 Déc 2026", fruit: "Myrtille Bleue", metrics: "1.0 cm · 0.5 g", heartRate: 138, icon: "🫐",
+      morpho: "Bourgeons des bras et jambes visibles. L'embryon double de taille en sept jours.",
+      inUtero: "Le petit cœur bat à 138 battements par minute, perceptible en échographie Doppler.",
+      steps: ["Échographie de viabilité formelle.", "Visualisation du sac vitellin et de l'embryon.", "Rythme régulier confirmé."],
+      advice: "Portez des vêtements amples et évitez toute compression au niveau abdominal." },
+    { week: 8,  trimester: 1, title: "Semaine 8", dates: "03 Déc - 09 Déc 2026", fruit: "Framboise Gourmande", metrics: "1.6 cm · 1.0 g", heartRate: 152, icon: "🍓",
+      morpho: "Les doigts et orteils se modèlent. Les paupières recouvrent délicatement les yeux.",
+      inUtero: "L'embryon réalise de minuscules mouvements spontanés dans son cocon amniotique.",
+      steps: ["Formation des quatre cavités cardiaques.", "Consultation d'évolution obstétrique.", "Bonne hydratation continue."],
+      advice: "Les infusions de gingembre frais apaisent naturellement les nausées passagères." },
+    { week: 9,  trimester: 1, title: "Semaine 9", dates: "10 Déc - 16 Déc 2026", fruit: "Olive Verte", metrics: "2.3 cm · 2.0 g", heartRate: 165, icon: "🫒",
+      morpho: "Passage du statut d'embryon à celui de fœtus. Les articulations des coudes et genoux plient.",
+      inUtero: "Les organes génitaux internes de votre petit garçon continuent leur différenciation.",
+      steps: ["Fin de l'organogenèse embryonnaire principale.", "Planification du sevrage progressif des hormones.", "Examen de tension artérielle."],
+      advice: "Respirez lentement par le ventre lors des moments de tension émotionnelle." },
+    { week: 10, trimester: 1, title: "Semaine 10", dates: "17 Déc - 23 Déc 2026", fruit: "Fraise des Bois", metrics: "3.1 cm · 4.0 g", heartRate: 162, icon: "🍓",
+      morpho: "Les os commencent à se calcifier. La silhouette fœtale s'allonge harmonieusement.",
+      inUtero: "Le placenta prend entièrement la relève hormonale et nutritionnelle.",
+      steps: ["Consultation de graduation et relais médical.", "Transmission du dossier complet à l'obstétricien.", "Arrêt guidé des injections."],
+      advice: "Bravo pour cette étape de graduation franchie avec plein succès !" },
+    { week: 11, trimester: 1, title: "Semaine 11", dates: "24 Déc - 30 Déc 2026", fruit: "Figue Douce", metrics: "4.1 cm · 7.0 g", heartRate: 160, icon: "🪴",
+      morpho: "Le fœtus commence à déglutir le liquide amniotique. Les ongles microscopiques apparaissent.",
+      inUtero: "Activité motrice continue : bébé s'étire et remue doucement ses membres.",
+      steps: ["Bilan sanguin du premier trimestre.", "Planification du rendez-vous d'écho T1.", "Suivi du poids maternel."],
+      advice: "Massez votre ventre avec une huile d'amande douce naturelle après la douche." },
+    { week: 12, trimester: 1, title: "Semaine 12", dates: "31 Déc - 06 Jan 2027", fruit: "Prune Juteuse", metrics: "5.4 cm · 14 g", heartRate: 158, icon: "🫐",
+      morpho: "LCC de 54 mm. Les reins fœtaux fonctionnent et les cordes vocales se différencient.",
+      inUtero: "Bébé réagit aux caresses extérieures et serre parfois ses petits poings.",
+      steps: ["Échographie T1 (Clarté nucale) déterminante.", "Prise de sang DPNI de sécurité génétique.", "Relais obstétrique officiel."],
+      advice: "Profitez de cette étape clé rassurante pour partager votre joie avec vos proches." },
+    { week: 13, trimester: 1, title: "Semaine 13", dates: "07 Jan - 13 Jan 2027", fruit: "Pêche Veloutée", metrics: "7.4 cm · 23 g", heartRate: 155, icon: "🍑",
+      morpho: "Les empreintes digitales uniques de votre garçon sont désormais formées.",
+      inUtero: "Clôture radieuse du 1er Trimestre ! Le placenta est parfaitement autonome.",
+      steps: ["Bilan récapitulatif du Premier Trimestre validé.", "Poursuite des vitamines prénatales.", "Planification du 2e Trimestre."],
+      advice: "Votre vitalité augmente : les marches quotidiennes en extérieur sont très bénéfiques." },
+    { week: 14, trimester: 2, title: "Semaine 14", dates: "14 Jan - 20 Jan 2027", fruit: "Citron Meyer", metrics: "8.7 cm · 43 g", heartRate: 152, icon: "🍋",
+      morpho: "Les traits du visage s'affinent. Le fœtus fait des mimiques et peut sucer son pouce.",
+      inUtero: "La thyroïde fœtale commence à produire ses propres hormones métaboliques.",
+      steps: ["Bienvenue dans le 2e Trimestre de sérénité.", "Surveillance du gain pondéral.", "Apport suffisant en calcium."],
+      advice: "Favorisez les amandes, les laitages doux et les légumes verts riches en calcium." },
+    { week: 15, trimester: 2, title: "Semaine 15", dates: "21 Jan - 27 Jan 2027", fruit: "Pomme Dorée", metrics: "10.1 cm · 70 g", heartRate: 150, icon: "🍎",
+      morpho: "Un duvet protecteur (lanugo) recouvre le corps. Les oreilles atteignent leur place définitive.",
+      inUtero: "Le petit garçon perçoit les vibrations sonores et la voix de sa maman.",
+      steps: ["Consultation prénatale du 4e mois.", "Mesure de la hauteur utérine.", "Vêtements amples confortables."],
+      advice: "Parlez tendrement à votre bébé le soir en posant les mains sur votre ventre." },
+    { week: 16, trimester: 2, title: "Semaine 16", dates: "28 Jan - 03 Fév 2027", fruit: "Avocat Hass", metrics: "11.6 cm · 100 g", heartRate: 148, icon: "🥑",
+      morpho: "Bébé atteint environ 100 grammes. Ses yeux réagissent aux variations lumineuses.",
+      inUtero: "Le cœur pompe environ 25 litres de sang par jour à travers les vaisseaux ombilicaux.",
+      steps: ["Bilan de contrôle sérique.", "Contrôle tensionnel systématique.", "Exercices doux de posture."],
+      advice: "Dormez de préférence sur le côté gauche avec un coussin entre les genoux." },
+    { week: 17, trimester: 2, title: "Semaine 17", dates: "04 Fév - 10 Fév 2027", fruit: "Poire Conférence", metrics: "13.0 cm · 140 g", heartRate: 147, icon: "🍐",
+      morpho: "Accumulation de graisse brune sous-cutanée pour aider le bébé à maintenir sa chaleur.",
+      inUtero: "Le cordon ombilical s'épaissit et transporte tous les nutriments indispensables.",
+      steps: ["Bilan en fer (ferritine).", "Hydratation d'au moins 2 litres par jour.", "Séances de relaxation."],
+      advice: "Écoutez des musiques calmes : les mélodies douces apaisent le fœtus in utero." },
+    { week: 18, trimester: 2, title: "Semaine 18", dates: "11 Fév - 17 Fév 2027", fruit: "Poivron Jaune", metrics: "14.2 cm · 190 g", heartRate: 146, icon: "🫑",
+      morpho: "Les influx nerveux se transmettent plus rapidement grâce à la myéline.",
+      inUtero: "Vous ressentez les tout premiers effleurements de mouvements comme des battements d'ailes !",
+      steps: ["Perception des premiers mouvements actifs.", "Prise de RDV pour l'écho morphologique T2.", "Examen dentaire recommandé."],
+      advice: "Notez la date de ses premiers petits mouvements dans votre carnet prénatal." },
+    { week: 19, trimester: 2, title: "Semaine 19", dates: "18 Fév - 24 Fév 2027", fruit: "Mangue Mûre", metrics: "15.3 cm · 240 g", heartRate: 145, icon: "🥭",
+      morpho: "Le vernix caseosa crémeux protège la peau délicate du contact permanent du liquide.",
+      inUtero: "Les centres sensoriels cérébraux (ouïe, goût, toucher) se développent à vive allure.",
+      steps: ["Mesure de la croissance fœtale.", "Étirements réguliers du dos.", "Vérification absence de contractions."],
+      advice: "Surélevez légèrement les jambes en fin de journée pour stimuler la circulation sanguine." },
+    { week: 20, trimester: 2, title: "Semaine 20", dates: "25 Fév - 03 Mar 2027", fruit: "Petite Banane", metrics: "25.6 cm · 300 g", heartRate: 144, icon: "🍌",
+      morpho: "Le cap de la mi-grossesse (20 SA) ! La mesure s'effectue désormais de la tête aux talons.",
+      inUtero: "Votre petit garçon donne des coups de pied perceptibles par la main posée sur le ventre.",
+      steps: ["Consultation prénatale pivot du 5e mois.", "Mesures biométriques détaillées.", "Ateliers de préparation."],
+      advice: "Prenez le temps de fêter ce cap symbolique de la mi-parcours de grossesse !" },
+    { week: 21, trimester: 2, title: "Semaine 21", dates: "04 Mar - 10 Mar 2027", fruit: "Carotte Géante", metrics: "26.7 cm · 360 g", heartRate: 143, icon: "🥕",
+      morpho: "La moelle osseuse produit désormais les globules rouges du bébé.",
+      inUtero: "Alternance de cycles de veille et de sommeil paisible (environ 18 heures par jour).",
+      steps: ["Analyse d'urine mensuelle.", "Contrôle de la hauteur utérine (~18 cm).", "Apport régulier en vitamine D."],
+      advice: "Portez des chaussures confortables à petit talon stable pour préserver vos chevilles." },
+    { week: 22, trimester: 2, title: "Semaine 22", dates: "11 Mar - 17 Mar 2027", fruit: "Papaye", metrics: "27.8 cm · 430 g", heartRate: 142, icon: "🫐",
+      morpho: "Échographie morphologique de niveau II : chaque organe est inspecté avec rigueur.",
+      inUtero: "Confirmation de la parfaite santé anatomique de votre petit garçon.",
+      steps: ["Échographie morphologique du 2e trimestre.", "Étude Doppler des artères utérines.", "Vérification de l'insertion placentaire."],
+      advice: "Conservez précieusement les clichés 3D de l'écho montrant son profil bien dessiné !" },
+    { week: 23, trimester: 2, title: "Semaine 23", dates: "18 Mar - 24 Mar 2027", fruit: "Aubergine Ronde", metrics: "28.9 cm · 500 g", heartRate: 142, icon: "🍆",
+      morpho: "Bébé atteint le demi-kilo (500 g). La peau s'épaissit et se colore doucement.",
+      inUtero: "Les alvéoles pulmonaires débutent la synthèse du surfactant.",
+      steps: ["Prise de poids fœtale harmonieuse.", "Contrôle du col de l'utérus.", "Discussion du projet de naissance."],
+      advice: "Chantez ou lisez des histoires à voix haute : bébé enregistre votre tonalité vocale." },
+    { week: 24, trimester: 2, title: "Semaine 24", dates: "25 Mar - 31 Mar 2027", fruit: "Cantaloup Parfumé", metrics: "30.0 cm · 600 g", heartRate: 140, icon: "🍈",
+      morpho: "Seuil international de viabilité fœtale atteint. Cils et sourcils sont nettement tracés.",
+      inUtero: "Bébé s'entraîne à faire des mouvements respiratoires dans le liquide amniotique.",
+      steps: ["Seuil de viabilité médicale franchi avec brio.", "Prescription du test HGPO pour le diabète.", "Contrôle de l'hémoglobine."],
+      advice: "Pratiquez des respirations complètes chaque matin pour bien oxygéner votre corps." },
+    { week: 25, trimester: 2, title: "Semaine 25", dates: "01 Avr - 07 Avr 2027", fruit: "Chou-Fleur", metrics: "34.6 cm · 660 g", heartRate: 140, icon: "🥦",
+      morpho: "Les narines s'ouvrent. Bébé réagit vivement aux bruits soudains de l'extérieur.",
+      inUtero: "La colonne vertébrale se consolide et acquiert toute sa souplesse.",
+      steps: ["Réalisation du test d'hyperglycémie HGPO 75g.", "Prise de sang de contrôle des anticorps.", "Confirmation de la maternité."],
+      advice: "Buvez régulièrement tout au long de la journée pour soutenir le fonctionnement rénal." },
+    { week: 26, trimester: 2, title: "Semaine 26", dates: "08 Avr - 14 Avr 2027", fruit: "Courgette Ronde", metrics: "35.6 cm · 760 g", heartRate: 139, icon: "🥒",
+      morpho: "Pour la première fois, les yeux de bébé s'entrouvrent in utero et battent des paupières.",
+      inUtero: "L'activité cérébrale montre des cycles structurés comparables au nouveau-né.",
+      steps: ["Consultation prénatale du 6e mois.", "Surveillance d'éventuels gonflements des chevilles.", "Comptage des mouvements fœtaux."],
+      advice: "Faites des pauses régulières lors de vos activités pour éviter la station debout prolongée." },
+    { week: 27, trimester: 2, title: "Semaine 27", dates: "15 Avr - 21 Avr 2027", fruit: "Chou Kale", metrics: "36.6 cm · 875 g", heartRate: 138, icon: "🥬",
+      morpho: "Dernière semaine du Deuxième Trimestre. Le cerveau forme ses sillons et replis.",
+      inUtero: "Le diaphragme a de petits hoquets bénins tout à fait normaux qui musclent son thorax.",
+      steps: ["Fin victorieuse du Deuxième Trimestre.", "Inscription aux cours de préparation à la naissance.", "Bilan biologique rénal."],
+      advice: "Les petits hoquets réguliers ressentis dans le ventre sont le signe d'une grande vitalité." },
+    { week: 28, trimester: 3, title: "Semaine 28", dates: "22 Avr - 28 Avr 2027", fruit: "Gros Ananas", metrics: "37.6 cm · 1.0 kg", heartRate: 138, icon: "🍍",
+      morpho: "Bienvenue au 3e Trimestre ! Bébé franchit la barre magnifique du premier kilo (1 000 g).",
+      inUtero: "Le sommeil paradoxal fœtal s'installe : votre petit prince fait ses tout premiers rêves.",
+      steps: ["Entrée dans le 3e Trimestre.", "Injection anti-D si rhésus négatif maternel.", "Numération sanguine complète (NFS)."],
+      advice: "Commencez à préparer tranquillement la chambre du bébé et les premiers pyjamas doux." },
+    { week: 29, trimester: 3, title: "Semaine 29", dates: "29 Avr - 05 Mai 2027", fruit: "Courge Butternut", metrics: "38.6 cm · 1.15 kg", heartRate: 137, icon: "🎃",
+      morpho: "Le fœtus régule mieux sa chaleur. Ses os absorbent quotidiennement du calcium.",
+      inUtero: "Bébé pousse vigoureusement sur la paroi utérine et fait onduler le ventre maternel.",
+      steps: ["Consultation du 7e mois.", "Contrôle de la présentation du bébé (tête ou siège).", "Consommation d'aliments riches en fer."],
+      advice: "Intégrez des lentilles, du persil frais et des aliments riches en fer à vos menus." },
+    { week: 30, trimester: 3, title: "Semaine 30", dates: "06 Mai - 12 Mai 2027", fruit: "Chou Blanc", metrics: "39.9 cm · 1.3 kg", heartRate: 136, icon: "🥬",
+      morpho: "Le liquide amniotique atteint son pic de volume maximal avant de diminuer légèrement.",
+      inUtero: "Bébé tourne la tête en direction des lumières vives projetées contre le ventre.",
+      steps: ["Hauteur utérine (~28 cm).", "Planification de l'échographie T3.", "Exercices doux de périnée."],
+      advice: "Pratiquez de légères contractions du périnée pour préserver la tonicité pelvienne." },
+    { week: 31, trimester: 3, title: "Semaine 31", dates: "13 Mai - 19 Mai 2027", fruit: "Noix de Coco", metrics: "41.1 cm · 1.5 kg", heartRate: 135, icon: "🥥",
+      morpho: "Prise de poids rapide (~200 g par semaine). Les cinq sens du bébé sont actifs.",
+      inUtero: "L'espace devient plus étroit et bébé replie harmonieusement ses bras et jambes.",
+      steps: ["Surveillance régulière de la tension artérielle.", "Vérification des mouvements quotidiens.", "Préparation du trousseau."],
+      advice: "Reposez-vous en position semi-assise pour faciliter la digestion et éviter les reflux." },
+    { week: 32, trimester: 3, title: "Semaine 32", dates: "20 Mai - 26 Mai 2027", fruit: "Courge Spaghetti", metrics: "42.4 cm · 1.7 kg", heartRate: 135, icon: "🎃",
+      morpho: "Échographie T3 de biométrie finale. Les ongles atteignent le bout des doigts.",
+      inUtero: "La majorité des bébés se placent désormais tête vers le bas (présentation céphalique).",
+      steps: ["Échographie du troisième trimestre (T3).", "Vérification de la croissance et du liquide.", "Doppler ombilical de sécurité."],
+      advice: "L'échographie confirme la bonne position céphalique de votre bébé : une étape rassurante !" },
+    { week: 33, trimester: 3, title: "Semaine 33", dates: "27 Mai - 02 Juin 2027", fruit: "Ananas Victoria", metrics: "43.7 cm · 1.9 kg", heartRate: 134, icon: "🍍",
+      morpho: "Les anticorps maternels traversent abondamment le placenta pour immuniser le bébé.",
+      inUtero: "Les os du crâne restent flexibles et non soudés pour faciliter la future naissance.",
+      steps: ["Consultation prénatale du 8e mois.", "Examen clinique du bassin.", "Massages préparatoires à l'huile végétale."],
+      advice: "Un massage doux à l'huile d'amande douce améliore grandement la souplesse tissulaire." },
+    { week: 34, trimester: 3, title: "Semaine 34", dates: "03 Juin - 09 Juin 2027", fruit: "Cantaloup Mûr", metrics: "45.0 cm · 2.15 kg", heartRate: 133, icon: "🍈",
+      morpho: "Le surfactant pulmonaire est presque entièrement mature. Bébé dépasse 2 kg.",
+      inUtero: "Le petit garçon reconnaît familièrement la voix de sa maman et réagit aux caresses.",
+      steps: ["Consultation anesthésique obligatoire.", "Dossier administratif de maternité complété.", "Valise de naissance prête."],
+      advice: "Préparez votre valise avec de jolis pyjamas confortables en coton pour le séjour à la maternité." },
+    { week: 35, trimester: 3, title: "Semaine 35", dates: "10 Juin - 16 Juin 2027", fruit: "Melon Miel", metrics: "46.2 cm · 2.4 kg", heartRate: 132, icon: "🍈",
+      morpho: "Les testicules sont descendus dans le scrotum. Le foie stocke du fer pour la naissance.",
+      inUtero: "Le bébé accumule les réserves qui lui serviront pour ses premiers jours de vie.",
+      steps: ["Dépistage du Streptocoque B (prélèvement vaginal).", "Examen du col utérin par la sage-femme.", "Derniers ajustements logistiques."],
+      advice: "Mémorisez l'itinéraire vers la maternité et gardez les numéros d'urgence sous la main." },
+    { week: 36, trimester: 3, title: "Semaine 36", dates: "17 Juin - 23 Juin 2027", fruit: "Grande Papaye", metrics: "47.4 cm · 2.6 kg", heartRate: 132, icon: "🫐",
+      morpho: "La tête descend doucement dans le bassin pelvien, libérant le diaphragme de la maman.",
+      inUtero: "Vous respirez plus aisément, bien que les envies d'uriner puissent être plus fréquentes.",
+      steps: ["Consultation obligatoire du 9e mois.", "Monitoring du rythme fœtal.", "Contrôle de la bonne descente céphalique."],
+      advice: "Profitez de cette libération respiratoire pour faire des siestes réparatrices." },
+    { week: 37, trimester: 3, title: "Semaine 37", dates: "24 Juin - 30 Juin 2027", fruit: "Pastèque Royale", metrics: "48.6 cm · 2.85 kg", heartRate: 130, icon: "🍉",
+      morpho: "Terme précoce atteint ! Tous les organes de votre bébé sont matures et prêts.",
+      inUtero: "Le lanugo disparaît presque totalement de la peau de votre petit garçon.",
+      steps: ["Bébé à terme précoce (37 SA).", "Suivi hebdomadaire jusqu'à l'accouchement.", "Derniers conseils de sage-femme."],
+      advice: "Le grand voyage est tout proche : gardez une confiance totale en la force de votre corps." },
+    { week: 38, trimester: 3, title: "Semaine 38", dates: "01 Juil - 07 Juil 2027", fruit: "Citrouille Ronde", metrics: "49.8 cm · 3.0 kg", heartRate: 130, icon: "🎃",
+      morpho: "Poigne de main vigoureuse. Les réflexes de succion et de préhension sont parfaits.",
+      inUtero: "Bébé stocke l'énergie finale et prend 25 à 30 grammes par jour.",
+      steps: ["Monitoring de routine.", "Reconnaissance des contractions de travail régulières.", "Vérification poche des eaux."],
+      advice: "Un bain tiède détend les muscles si vous ressentez de fausses contractions d'entraînement." },
+    { week: 39, trimester: 3, title: "Semaine 39", dates: "08 Juil - 14 Juil 2027", fruit: "Grande Pastèque", metrics: "50.7 cm · 3.2 kg", heartRate: 128, icon: "🍉",
+      morpho: "Maturité physiologique totale. Les ongles dépassent légèrement le bout des doigts.",
+      inUtero: "Le col utérin commence à s'effacer doucement sous la pression du bébé.",
+      steps: ["Contrôle du bien-être fœtal.", "Surveillance de la maturation du col.", "Derniers moments d'attente à deux."],
+      advice: "Restez attentive si les contractions deviennent rythmées toutes les 5 minutes pendant une heure." },
+    { week: 40, trimester: 3, title: "Semaine 40", dates: "15 Juil - 22 Juil 2027", fruit: "Pastèque Sucre", metrics: "51.5 cm · 3.4 kg", heartRate: 128, icon: "🍉",
+      morpho: "LE TERME CLINIQUE EST ATTEINT (22 Juillet 2027) ! Bébé est prêt à naître.",
+      inUtero: "Aboutissement magnifique de votre parcours de grossesse.",
+      steps: ["Jour de la Date Prévisionnelle d'Accouchement (DPA).", "Accueil magique de votre petit garçon !", "Célébration d'un immense amour maternel."],
+      advice: "Félicitations ! Bienvenue à votre précieux petit prince garçon, symbole de triomphe et de vie !" }
+  ];
+
+  // Rendu 3D Three.js directement dans la niche
+  let resetCameraView;
+  let updateFetusAnatomyMesh;
+  (function initThree() {
+    const container = document.getElementById('threejs-container-womb-wood');
+    if (!container) return;
+    const w = container.clientWidth || 450;
+    const h = container.clientHeight || 280;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
+    camera.position.set(0, 0.2, 13);
+
+    resetCameraView = function() {
+      camera.position.set(0, 0.2, 13);
+      camera.lookAt(0, 0, 0);
+    };
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    container.appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0xffb5a0, 1.4);
+    scene.add(ambientLight);
+
+    const mainLight = new THREE.PointLight(0xff7a59, 3.8, 45);
+    mainLight.position.set(6, 8, 9);
+    scene.add(mainLight);
+
+    const backLight = new THREE.PointLight(0xd94b26, 3.2, 35);
+    backLight.position.set(-7, 5, -5);
+    scene.add(backLight);
+
+    const rootGroup = new THREE.Group();
+    scene.add(rootGroup);
+
+    // Sac amniotique translucide enrichi et paroi utérine
+    const sacMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(6.4, 36, 36),
+      new THREE.MeshPhongMaterial({ color: 0x9e341f, emissive: 0x481409, specular: 0xffcaa8, transparent: true, opacity: 0.25, side: THREE.BackSide })
+    );
+    rootGroup.add(sacMesh);
+
+    // Particules flottantes vernix / liquide amniotique
+    const particleGeo = new THREE.BufferGeometry();
+    const particleCount = 70;
+    const posArray = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      posArray[i] = (Math.random() - 0.5) * 8;
+      posArray[i+1] = (Math.random() - 0.5) * 8;
+      posArray[i+2] = (Math.random() - 0.5) * 6;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particleMat = new THREE.PointsMaterial({ size: 0.08, color: 0xffe2d1, transparent: true, opacity: 0.45 });
+    const vernixParticles = new THREE.Points(particleGeo, particleMat);
+    rootGroup.add(vernixParticles);
+
+    // Fœtus modélisé & cordon ombilical
+    const fetus = new THREE.Group();
+    rootGroup.add(fetus);
+
+    const skinMat = new THREE.MeshPhongMaterial({ color: 0xfcbda4, emissive: 0x471d15, specular: 0xffe4db, shininess: 42 });
+    const limbMat = new THREE.MeshPhongMaterial({ color: 0xf9b199, emissive: 0x3d1710, shininess: 32 });
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(1.35, 26, 26), skinMat);
+    head.position.set(0, 1.45, 0.3);
+    fetus.add(head);
+
+    const torso = new THREE.Mesh(new THREE.SphereGeometry(1.45, 26, 26), skinMat);
+    torso.position.set(-0.25, -0.2, 0.05);
+    torso.scale.set(0.95, 1.35, 1.0);
+    fetus.add(torso);
+
+    // Membres foetaux
+    const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 1.2, 16), limbMat);
+    armL.position.set(0.9, 0.2, 0.5);
+    armL.rotation.z = -0.5;
+    fetus.add(armL);
+
+    const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 1.2, 16), limbMat);
+    armR.position.set(-1.1, 0.3, 0.4);
+    armR.rotation.z = 0.5;
+    fetus.add(armR);
+
+    // Jambes repliées in utero
+    const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.22, 1.3, 16), limbMat);
+    legL.position.set(0.6, -1.3, 0.6);
+    legL.rotation.x = 0.9;
+    legL.rotation.z = -0.3;
+    fetus.add(legL);
+
+    const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.22, 1.3, 16), limbMat);
+    legR.position.set(-0.6, -1.3, 0.6);
+    legR.rotation.x = 0.9;
+    legR.rotation.z = 0.3;
+    fetus.add(legR);
+
+    // Cordon ombilical spiralé vers placenta
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-0.1, -0.2, 0.9),
+      new THREE.Vector3(-0.6, -0.7, 1.4),
+      new THREE.Vector3(-1.4, -0.3, 1.8),
+      new THREE.Vector3(-2.2, -1.2, 2.2)
+    ]);
+    const cordGeo = new THREE.TubeGeometry(curve, 20, 0.12, 8, false);
+    const cordMat = new THREE.MeshPhongMaterial({ color: 0x9b2a26, emissive: 0x3d0b09, transparent: true, opacity: 0.85 });
+    const umbilicalCord = new THREE.Mesh(cordGeo, cordMat);
+    fetus.add(umbilicalCord);
+
+    // Cœur fœtal pulsatile
+    const heartLight = new THREE.PointLight(0xff1d4a, 2.8, 6.5);
+    heartLight.position.set(0.04, 0.45, 0.9);
+    fetus.add(heartLight);
+
+    // Mise à l'échelle & anatomie adaptative selon la semaine
+    updateFetusAnatomyMesh = function(week) {
+      const t = (Math.max(1, Math.min(40, week)) - 1) / 39;
+      const scale = 0.35 + Math.pow(t, 0.72) * 1.35;
+      fetus.scale.set(scale, scale, scale);
+
+      // Morphologie fœtale adaptative
+      if (week <= 4) {
+        head.scale.set(0.4, 0.4, 0.4);
+        armL.visible = false;
+        armR.visible = false;
+        legL.visible = false;
+        legR.visible = false;
+      } else if (week <= 8) {
+        head.scale.set(0.7, 0.7, 0.7);
+        armL.visible = true;
+        armR.visible = true;
+        armL.scale.set(0.5, 0.5, 0.5);
+        armR.scale.set(0.5, 0.5, 0.5);
+        legL.visible = false;
+        legR.visible = false;
+      } else {
+        head.scale.set(1.0, 1.0, 1.0);
+        armL.visible = true;
+        armR.visible = true;
+        legL.visible = true;
+        legR.visible = true;
+        armL.scale.set(1, 1, 1);
+        armR.scale.set(1, 1, 1);
+      }
+    };
+    window.updateFetus3DScale = updateFetusAnatomyMesh;
+    window.updateFetus3DScale(12);
+
+    let isPlaying = true;
+    window.toggleVideoPlayback = function() {
+      isPlaying = !isPlaying;
+      return isPlaying;
+    };
+
+    let mouseX = 0, mouseY = 0, rotX = 0, rotY = 0;
+    container.addEventListener('mousemove', (e) => {
+      const rect = container.getBoundingClientRect();
+      mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+    });
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+      
+      rotX += (mouseX * 0.7 - rotX) * 0.06;
+      rotY += (mouseY * 0.4 - rotY) * 0.06;
+      
+      if (isPlaying) {
+        fetus.rotation.y = t * 0.35 + rotX;
+        fetus.rotation.x = Math.sin(t * 0.4) * 0.12 + rotY * 0.4;
+        fetus.position.y = Math.sin(t * 0.8) * 0.14;
+        vernixParticles.rotation.y = t * 0.05;
+        heartLight.intensity = Math.sin(t * (158 / 60) * Math.PI * 2) > 0.35 ? 3.2 : 0.6;
+      }
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      const nw = container.clientWidth || 450;
+      const nh = container.clientHeight || 280;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    });
+  })();
+
+  // =========================================================================
+  // MOTEUR AUDIO ROBUSTE : NARRATION VOCALE MASCULINE FRANÇAISE & TRANSCRIPTION KARAOKÉ
+  // Formulation directe sans intro 'Bienvenue/Fatou/RMA', ton calme et posé
+  // =========================================================================
+  let isSpeaking = false;
+  let frenchVoice = null;
+  let availableVoices = [];
+  let karaokeInterval = null;
+  let currentWordList = [];
+  let dopplerAudioCtx = null;
+  let dopplerInterval = null;
+  let isDopplerPlaying = false;
+  let fallbackSynthTimer = null;
+
+  function loadAndSelectFrenchVoice() {
+    if (!('speechSynthesis' in window)) return null;
+    try {
+      availableVoices = window.speechSynthesis.getVoices() || [];
+      if (availableVoices.length > 0) {
+        const frVoices = availableVoices.filter(v => v.lang && (v.lang.toLowerCase() === 'fr-fr' || v.lang.toLowerCase() === 'fr_fr' || v.lang.toLowerCase().startsWith('fr')));
+
+        // Priorité stricte à une voix masculine française humaine réaliste
+        // Noms masculins fréquents: Thomas, Nicolas, Paul, Antoine, Henri, Mathieu, Claude, Bernard, Guy, Google français
+        const maleKeywords = /thomas|nicolas|paul|antoine|henri|mathieu|claude|bernard|guy|male|homme|google\s*français/i;
+        const femaleKeywords = /hortense|julie|celine|céline|audrey|amelie|amélie|denise|virginie|charlotte|marie|female|femme/i;
+
+        const maleVoiceCandidates = frVoices.filter(v => maleKeywords.test(v.name) && !femaleKeywords.test(v.name));
+        const nonFemaleVoices = frVoices.filter(v => !femaleKeywords.test(v.name));
+
+        frenchVoice = maleVoiceCandidates[0] ||
+                      nonFemaleVoices.find(v => v.lang.toLowerCase() === 'fr-fr') ||
+                      frVoices.find(v => v.lang.toLowerCase() === 'fr-fr') ||
+                      frVoices[0] ||
+                      null;
+
+        const voiceTag = document.getElementById('audio-lang-indicator');
+        if (voiceTag) {
+          if (frenchVoice) {
+            const cleanName = frenchVoice.name.replace(/Microsoft|Google|Apple/gi, '').trim().substring(0, 16);
+            voiceTag.textContent = `Voix : ${cleanName || 'Masculine'} (fr-FR)`;
+          } else {
+            voiceTag.textContent = 'Voix : Masculine (fr-FR)';
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Erreur chargement des voix :", err);
+    }
+    return frenchVoice;
+  }
+
+  if ('speechSynthesis' in window) {
+    loadAndSelectFrenchVoice();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadAndSelectFrenchVoice;
+    }
+  }
+
+  // Formulation médicale et fœtale fluide commençant DIRECTEMENT par le numéro de semaine et les faits
+  // Absolument aucune mention de 'Bienvenue', 'Fatou' ou 'RMA'
+  function generateFrenchNarrationText(data) {
+    return `Semaine ${data.week} de votre grossesse. ` +
+           `Votre petit garçon mesure environ ${data.metrics}, ce qui correspond à la taille d'une ${data.fruit.toLowerCase()}. ` +
+           `Développement in utero : ${data.inUtero} ` +
+           `Sur le plan morphologique : ${data.morpho} ` +
+           `Conseil de bien-être : ${data.advice}`;
+  }
+
+  // Prépare les boîtes de mots pour la transcription interactive
+  function setupTranscriptionDisplay(fullText) {
+    const box = document.getElementById('audio-live-transcription-box');
+    if (!box) return;
+    box.innerHTML = '';
+    const words = fullText.split(/\s+/).filter(w => w.trim().length > 0);
+    currentWordList = words;
+
+    words.forEach((w, index) => {
+      const span = document.createElement('span');
+      span.className = 'karaoke-word';
+      span.id = `kw-${index}`;
+      span.textContent = w + ' ';
+      box.appendChild(span);
+    });
+  }
+
+  function highlightKaraokeIndex(wordIdx) {
+    const total = currentWordList.length;
+    for (let i = 0; i < total; i++) {
+      const el = document.getElementById(`kw-${i}`);
+      if (!el) continue;
+      if (i < wordIdx) {
+        el.className = 'karaoke-word past-word';
+      } else if (i === wordIdx) {
+        el.className = 'karaoke-word active-word';
+        // Auto-scroll pour garder le mot visible
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        el.className = 'karaoke-word';
+      }
+    }
+  }
+
+  function resetKaraokeHighlight() {
+    if (karaokeInterval) {
+      clearInterval(karaokeInterval);
+      karaokeInterval = null;
+    }
+    document.querySelectorAll('.karaoke-word').forEach(el => {
+      el.className = 'karaoke-word';
+    });
+  }
+
+  function setAudioPlayingUI(playing) {
+    const waveContainer = document.getElementById('audio-wave-container');
+    const idleBadge = document.getElementById('audio-idle-badge');
+    const iconBtn = document.getElementById('icon-voice-action');
+    const textBtn = document.getElementById('text-voice-action');
+
+    if (playing) {
+      isSpeaking = true;
+      if (waveContainer) {
+        waveContainer.classList.remove('hidden');
+        waveContainer.classList.add('flex');
+      }
+      if (idleBadge) idleBadge.classList.add('hidden');
+      if (iconBtn) iconBtn.textContent = 'pause';
+      if (textBtn) textBtn.textContent = 'Mettre en pause';
+    } else {
+      isSpeaking = false;
+      if (waveContainer) {
+        waveContainer.classList.add('hidden');
+        waveContainer.classList.remove('flex');
+      }
+      if (idleBadge) idleBadge.classList.remove('hidden');
+      if (iconBtn) iconBtn.textContent = 'play_arrow';
+      if (textBtn) textBtn.textContent = 'Écouter la narration masculine (Français)';
+      resetKaraokeHighlight();
+    }
+  }
+
+  // Son de carillon doux via Web Audio pour feedback instantané lors du clic
+  function playGentleNarratorChime() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(554.37, ctx.currentTime + 0.12);
+
+      gain.gain.setValueAtTime(0.06, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.3);
+    } catch (e) {
+      // Ignorer si bloqué
+    }
+  }
+
+  // Lecture de la transcription d'une semaine donnée
+  function playNarrationForWeek(weekNum) {
+    const data = window.PREGNANCY_WEEKS[weekNum - 1];
+    if (!data) return;
+
+    // Déblocage audio immédiat
+    playGentleNarratorChime();
+
+    const fullText = generateFrenchNarrationText(data);
+    setupTranscriptionDisplay(fullText);
+
+    // Si speechSynthesis est disponible
+    if ('speechSynthesis' in window) {
+      try {
+        // Déblocage & nettoyage préventif du moteur SpeechSynthesis
+        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+
+        const chosenVoice = loadAndSelectFrenchVoice();
+
+        const utterance = new SpeechSynthesisUtterance(fullText);
+        utterance.lang = 'fr-FR';
+        // Paramètres optimisés : débit calme et posé (0.83), voix masculine chaleureuse (pitch 0.92)
+        utterance.rate = 0.83;
+        utterance.pitch = 0.92;
+        if (chosenVoice) {
+          utterance.voice = chosenVoice;
+        }
+
+        let wordCounter = 0;
+        const totalWords = currentWordList.length;
+
+        // Événement boundary pour surlignage précis mot par mot
+        utterance.onboundary = (event) => {
+          if (event.name === 'word') {
+            highlightKaraokeIndex(wordCounter);
+            wordCounter = Math.min(totalWords - 1, wordCounter + 1);
+          }
+        };
+
+        utterance.onstart = () => {
+          setAudioPlayingUI(true);
+          // Si l'événement boundary ne s'active pas dans certains navigateurs, timer de secours synchronisé
+          if (!karaokeInterval) {
+            let step = 0;
+            const msPerWord = 390; // Calibré pour un débit posé (rate: 0.83)
+            karaokeInterval = setInterval(() => {
+              if (step < totalWords) {
+                highlightKaraokeIndex(step);
+                step++;
+              } else {
+                clearInterval(karaokeInterval);
+              }
+            }, msPerWord);
+          }
+        };
+
+        utterance.onend = () => {
+          setAudioPlayingUI(false);
+          document.querySelectorAll('.karaoke-word').forEach(el => {
+            el.className = 'karaoke-word past-word';
+          });
+        };
+
+        utterance.onerror = (e) => {
+          console.warn("Événement SpeechSynthesis error, bascule fallback :", e);
+          fallbackKaraokePlay(fullText);
+        };
+
+        window.speechSynthesis.speak(utterance);
+        return;
+      } catch (err) {
+        console.warn("Erreur SpeechSynthesis, bascule fallback visuelle :", err);
+      }
+    }
+
+    // Fallback si SpeechSynthesis non disponible ou bloqué
+    fallbackKaraokePlay(fullText);
+  }
+
+  function fallbackKaraokePlay(fullText) {
+    setAudioPlayingUI(true);
+    let step = 0;
+    const words = currentWordList;
+    if (karaokeInterval) clearInterval(karaokeInterval);
+
+    karaokeInterval = setInterval(() => {
+      if (step < words.length) {
+        highlightKaraokeIndex(step);
+        step++;
+      } else {
+        clearInterval(karaokeInterval);
+        setAudioPlayingUI(false);
+      }
+    }, 390);
+  }
+
+  function stopNarration() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setAudioPlayingUI(false);
+  }
+
+  window.triggerMainNarrationClick = function() {
+    const curW = window.currentActiveWeek || 12;
+    if (isSpeaking) {
+      stopNarration();
+    } else {
+      playNarrationForWeek(curW);
+    }
+  };
+
+  window.replayNarrationCurrentWeek = function() {
+    stopNarration();
+    const curW = window.currentActiveWeek || 12;
+    setTimeout(() => {
+      playNarrationForWeek(curW);
+    }, 60);
+  };
+
+  window.speakCurrentWeekSection = function(sectionKey) {
+    const data = window.PREGNANCY_WEEKS[(window.currentActiveWeek || 12) - 1];
+    if (!data) return;
+    
+    stopNarration();
+    playGentleNarratorChime();
+
+    let textToRead = "";
+    if (sectionKey === 'inUtero') textToRead = `Semaine ${data.week}, développement in utero. ` + data.inUtero;
+    else if (sectionKey === 'morpho') textToRead = `Semaine ${data.week}, morphologie et croissance. ` + data.morpho;
+    else if (sectionKey === 'steps') textToRead = `Semaine ${data.week}, démarches cliniques et suivi. ` + data.steps.join('. ');
+    else if (sectionKey === 'advice') textToRead = `Semaine ${data.week}, conseil de bien-être. ` + data.advice;
+
+    setupTranscriptionDisplay(textToRead);
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+
+      const chosenVoice = loadAndSelectFrenchVoice();
+      const u = new SpeechSynthesisUtterance(textToRead);
+      u.lang = 'fr-FR';
+      u.rate = 0.83;
+      u.pitch = 0.92;
+      if (chosenVoice) u.voice = chosenVoice;
+
+      u.onstart = () => setAudioPlayingUI(true);
+      u.onend = () => setAudioPlayingUI(false);
+      u.onerror = () => setAudioPlayingUI(false);
+
+      let step = 0;
+      karaokeInterval = setInterval(() => {
+        if (step < currentWordList.length) {
+          highlightKaraokeIndex(step);
+          step++;
+        } else {
+          clearInterval(karaokeInterval);
+        }
+      }, 390);
+
+      window.speechSynthesis.speak(u);
+    } else {
+      fallbackKaraokePlay(textToRead);
+    }
+  };
+
+  // Synthétiseur audio Web Audio API pour battement de cœur Doppler réaliste
+  function toggleDopplerHeartbeat() {
+    const label = document.getElementById('doppler-sound-label');
+    const curWeekData = window.PREGNANCY_WEEKS[(window.currentActiveWeek || 12) - 1];
+    const bpm = (curWeekData && curWeekData.heartRate) ? curWeekData.heartRate : 158;
+
+    if (isDopplerPlaying) {
+      if (dopplerInterval) clearInterval(dopplerInterval);
+      isDopplerPlaying = false;
+      label.textContent = `Doppler Cardiaque (${bpm} bpm)`;
+      return;
+    }
+
+    try {
+      if (!dopplerAudioCtx) {
+        dopplerAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (dopplerAudioCtx.state === 'suspended') {
+        dopplerAudioCtx.resume();
+      }
+
+      isDopplerPlaying = true;
+      label.textContent = `🔊 Battements Actifs (${bpm} bpm)`;
+
+      const playThump = (freq, duration, gainVal) => {
+        if (!dopplerAudioCtx) return;
+        const osc = dopplerAudioCtx.createOscillator();
+        const gain = dopplerAudioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, dopplerAudioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(32, dopplerAudioCtx.currentTime + duration);
+
+        gain.gain.setValueAtTime(gainVal, dopplerAudioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, dopplerAudioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(dopplerAudioCtx.destination);
+
+        osc.start();
+        osc.stop(dopplerAudioCtx.currentTime + duration);
+      };
+
+      const intervalMs = (60 / bpm) * 1000;
+      dopplerInterval = setInterval(() => {
+        // Double battement fœtal lub-dub caractéristique
+        playThump(85, 0.12, 0.22);
+        setTimeout(() => {
+          playThump(65, 0.10, 0.16);
+        }, 110);
+      }, intervalMs);
+
+    } catch (e) {
+      console.warn("Web Audio non disponible", e);
+    }
+  }
+
+  // Logique interactive directe sans popup
+  document.addEventListener('DOMContentLoaded', () => {
+    let currentWeek = 12;
+    window.currentActiveWeek = 12;
+    const doorsGrid = document.getElementById('doors-grid');
+    const slider = document.getElementById('gestational-slider');
+    const rangeIndicator = document.getElementById('range-indicator');
+    const bannerActive = document.getElementById('banner-active-week-label');
+    
+    // Éléments du volet d'affichage latéral direct
+    const displayTrimester = document.getElementById('display-trimester-tag');
+    const displayTitle = document.getElementById('display-week-title');
+    const displayDates = document.getElementById('display-date-range');
+    const displayMetrics = document.getElementById('display-size-metrics');
+    const displayFruit = document.getElementById('display-fruit-compare');
+    const heartEl = document.getElementById('fetal-heart-rate');
+    const telemetryAge = document.getElementById('fetal-age-telemetry');
+    const telemetryLiveMetrics = document.getElementById('fetal-live-metrics');
+    const screenAvatar = document.getElementById('screen-fruit-avatar');
+
+    // Badges biométriques
+    const badgeLcc = document.getElementById('badge-lcc');
+    const badgeWeight = document.getElementById('badge-weight');
+    const badgeFruit = document.getElementById('badge-fruit');
+
+    // Sections textuelles cliniques en direct
+    const descInUtero = document.getElementById('display-desc-inutero');
+    const descMorpho = document.getElementById('display-desc-morpho');
+    const stepsList = document.getElementById('display-steps-list');
+    const descAdvice = document.getElementById('display-desc-advice');
+    const scrubberVal = document.getElementById('scrubber-week-val');
+
+    // Boutons multimédia in utero
+    const playBtn = document.getElementById('inline-video-play-btn');
+    const playPauseIcon = document.getElementById('play-pause-icon');
+    const videoStatusText = document.getElementById('video-status-text');
+    const resetCamBtn = document.getElementById('btn-reset-cam');
+
+    // Commandes Audio
+    const toggleAutoplay = document.getElementById('toggle-voice-autoplay');
+    const btnToggleDoppler = document.getElementById('btn-toggle-doppler-sound');
+
+    // Commutateur de vue 3D vs Illustration HD
+    const toggle3D = document.getElementById('toggle-view-3d');
+    const toggleArt = document.getElementById('toggle-view-art');
+    const container3D = document.getElementById('threejs-container-womb-wood');
+    const viewArt = document.getElementById('artistic-womb-view');
+    const wombIconDisplay = document.getElementById('womb-icon-display');
+    const wombArtTitle = document.getElementById('womb-art-title');
+    const wombArtDesc = document.getElementById('womb-art-desc');
+
+    function getDoorColor(w) {
+      if (w <= 13) return 'bg-[#c9dbc9] text-[#2c3d2c] border-[#a5bea5]';
+      if (w <= 27) return 'bg-[#f6d2c1] text-[#4d2c1e] border-[#e2b49e]';
+      return 'bg-[#f7e0b2] text-[#493517] border-[#e4c489]';
+    }
+
+    // Commutateurs de vue in utero
+    toggle3D.addEventListener('click', () => {
+      container3D.classList.remove('hidden');
+      viewArt.classList.add('hidden');
+      toggle3D.className = "px-2.5 py-1 rounded bg-amber-800/80 text-amber-50 shadow font-bold transition flex items-center gap-1 cursor-pointer";
+      toggleArt.className = "px-2.5 py-1 rounded text-amber-300 hover:text-amber-100 transition flex items-center gap-1 cursor-pointer";
+    });
+
+    toggleArt.addEventListener('click', () => {
+      container3D.classList.add('hidden');
+      viewArt.classList.remove('hidden');
+      toggleArt.className = "px-2.5 py-1 rounded bg-amber-800/80 text-amber-50 shadow font-bold transition flex items-center gap-1 cursor-pointer";
+      toggle3D.className = "px-2.5 py-1 rounded text-amber-300 hover:text-amber-100 transition flex items-center gap-1 cursor-pointer";
+    });
+
+    // Génération des 40 volets en bois
+    window.PREGNANCY_WEEKS.forEach(info => {
+      const door = document.createElement('div');
+      door.className = `door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none ${getDoorColor(info.week)} ${info.week === 12 ? 'is-active-week' : ''}`;
+      door.dataset.week = info.week;
+      door.innerHTML = `
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-black font-serif">S${info.week}</span>
+          <span class="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+        </div>
+        <div class="text-center my-1">
+          <span class="text-2xl">${info.icon}</span>
+          <p class="text-[10px] font-bold truncate mt-0.5">${info.fruit}</p>
+        </div>
+        <button type="button" class="w-full text-[9px] py-1 px-1 bg-amber-900/15 hover:bg-amber-900/30 rounded font-bold text-amber-950 transition flex items-center justify-center gap-1 cursor-pointer" onclick="event.stopPropagation(); window.selectWeekDirect(${info.week}, true);">
+          <span>S${info.week}</span> <span class="material-symbols-outlined text-[10px]">volume_up</span>
+        </button>
+      `;
+
+      // Clic sur n'importe quel volet : met à jour DIRECTEMENT la niche latérale & lit l'audio
+      door.addEventListener('click', () => {
+        selectWeek(info.week, toggleAutoplay.checked);
+      });
+      doorsGrid.appendChild(door);
+    });
+
+    window.selectWeekDirect = function(w, triggerAudio) {
+      selectWeek(w, triggerAudio);
+    };
+
+    function selectWeek(weekNum, triggerAudio = false) {
+      currentWeek = weekNum;
+      window.currentActiveWeek = weekNum;
+      const data = window.PREGNANCY_WEEKS[weekNum - 1];
+      if (!data) return;
+
+      slider.value = weekNum;
+      rangeIndicator.textContent = `Semaine ${weekNum} (${weekNum} SA)`;
+      bannerActive.textContent = `Semaine active : S${weekNum} (${data.fruit})`;
+      scrubberVal.textContent = `S${weekNum} / 40`;
+
+      displayTrimester.textContent = `${data.trimester === 1 ? 'Premier' : data.trimester === 2 ? 'Deuxième' : 'Troisième'} Trimestre`;
+      displayTitle.textContent = `SEMAINE ${weekNum}`;
+      displayDates.textContent = `${data.dates} • Étape Garçon J5`;
+      displayMetrics.textContent = data.metrics;
+      displayFruit.textContent = `Taille : ${data.fruit}`;
+      
+      const hr = data.heartRate ? `${data.heartRate} bpm` : '158 bpm';
+      heartEl.textContent = hr;
+      telemetryAge.textContent = `ÂGE : S${weekNum} (${weekNum} SA)`;
+      telemetryLiveMetrics.textContent = `${data.metrics} · ${data.fruit}`;
+      screenAvatar.textContent = data.icon;
+
+      // Illustration HD mise à jour
+      wombIconDisplay.textContent = data.icon;
+      wombArtTitle.textContent = `Illustration Médicale In Utero · Semaine ${weekNum}`;
+      wombArtDesc.textContent = `${data.inUtero} (Taille fœtale estimée : ${data.metrics}, comparable à une ${data.fruit.toLowerCase()}).`;
+
+      // Badges
+      const parts = data.metrics.split('·');
+      badgeLcc.textContent = parts[0]?.trim() || `${data.metrics}`;
+      badgeWeight.textContent = parts[1]?.trim() || 'Variable';
+      badgeFruit.textContent = data.fruit;
+
+      // Textes cliniques
+      descInUtero.textContent = data.inUtero;
+      descMorpho.textContent = data.morpho;
+      stepsList.innerHTML = data.steps.map(s => `<li>${s}</li>`).join('');
+      descAdvice.textContent = data.advice;
+
+      // Préparation de la boîte de transcription avec le texte nettoyé sans intro
+      const fullNarration = generateFrenchNarrationText(data);
+      setupTranscriptionDisplay(fullNarration);
+
+      // Cadran Molette et Jalon
+      const trimKnob = document.getElementById('trimester-knob-label');
+      const trimNeedle = document.getElementById('trimester-needle');
+      if (data.trimester === 1) {
+        trimKnob.textContent = "T1 • 1er Trimestre";
+        trimNeedle.style.transform = "rotate(45deg)";
+      } else if (data.trimester === 2) {
+        trimKnob.textContent = "T2 • 2e Trimestre";
+        trimNeedle.style.transform = "rotate(135deg)";
+      } else {
+        trimKnob.textContent = "T3 • 3e Trimestre";
+        trimNeedle.style.transform = "rotate(225deg)";
+      }
+
+      const dialNeedle = document.getElementById('milestone-dial-needle');
+      const dialDesc = document.getElementById('milestone-dial-desc');
+      const deg = Math.floor((weekNum / 40) * 360);
+      dialNeedle.style.transform = `rotate(${deg}deg)`;
+      dialDesc.textContent = weekNum <= 12 ? 'Clarté Nucale T1' : weekNum <= 24 ? 'Morphologie T2' : 'Maturation T3';
+
+      // Mise en surbrillance du volet sélectionné
+      document.querySelectorAll('.door-item').forEach(el => {
+        if (parseInt(el.dataset.week) === weekNum) {
+          el.classList.add('is-active-week');
+          el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          el.classList.remove('is-active-week');
+        }
+      });
+
+      // Synchronisation de l'échelle du fœtus 3D
+      if (window.updateFetus3DScale) {
+        window.updateFetus3DScale(weekNum);
+      }
+
+      // Doppler label update
+      if (!isDopplerPlaying) {
+        document.getElementById('doppler-sound-label').textContent = `Doppler Cardiaque (${data.heartRate || 158} bpm)`;
+      }
+
+      // Lecture vocale automatique si activée
+      if (triggerAudio) {
+        playNarrationForWeek(weekNum);
+      } else if (isSpeaking) {
+        playNarrationForWeek(weekNum);
+      }
+    }
+
+    // Gestion du bouton Play/Pause du lecteur dans la niche
+    playBtn.addEventListener('click', () => {
+      if (window.toggleVideoPlayback) {
+        const isRunning = window.toggleVideoPlayback();
+        if (isRunning) {
+          playPauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>';
+          videoStatusText.textContent = 'Flux Écho 3D In Utero Actif';
+        } else {
+          playPauseIcon.innerHTML = '<path d="M8 5v14l11-7z"></path>';
+          videoStatusText.textContent = 'Pause (Vidéo figée)';
+        }
+      }
+    });
+
+    if (resetCamBtn) {
+      resetCamBtn.addEventListener('click', () => {
+        if (resetCameraView) resetCameraView();
+      });
+    }
+
+    btnToggleDoppler.addEventListener('click', () => {
+      toggleDopplerHeartbeat();
+    });
+
+    // Navigation rapide semaines
+    document.getElementById('btn-prev-week').addEventListener('click', () => {
+      if (currentWeek > 1) selectWeek(currentWeek - 1, toggleAutoplay.checked);
+    });
+    document.getElementById('btn-next-week').addEventListener('click', () => {
+      if (currentWeek < 40) selectWeek(currentWeek + 1, toggleAutoplay.checked);
+    });
+
+    slider.addEventListener('input', (e) => {
+      selectWeek(parseInt(e.target.value), false);
+    });
+
+    // Onglets des dossiers cliniques inférieurs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('bg-parchment-100', 'border', 'border-[#cfb286]', 'text-amber-950');
+          b.classList.add('bg-amber-900/20', 'text-amber-900');
+        });
+        btn.classList.add('bg-parchment-100', 'border', 'border-[#cfb286]', 'text-amber-950');
+        btn.classList.remove('bg-amber-900/20', 'text-amber-900');
+
+        const targetId = btn.dataset.target;
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+        document.getElementById(targetId)?.classList.remove('hidden');
+      });
+    });
+
+    // Initialisation sur la Semaine 12
+    selectWeek(12, false);
+  });
+</script>
+
+
+</body></html>

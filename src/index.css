@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: "Playfair Display", Georgia, serif;
+    --font-display: "Cinzel", serif;
+    --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+
+  body {
+    background-color: #24160a;
+    background-image: radial-gradient(ellipse at 50% 10%, rgba(214, 172, 120, 0.18), transparent 75%), linear-gradient(135deg, #1f1308 0%, #150b04 100%);
+    color: #3b2814;
+    font-family: "Plus Jakarta Sans", sans-serif;
+  }
+}
+
+.font-serif {
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+.font-display {
+  font-family: "Cinzel", serif;
+}
+
+.font-sans {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.wood-board {
+  background-color: #e6cead;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(162, 117, 68, 0.04) 0px, rgba(162, 117, 68, 0.04) 3px, transparent 3px, transparent 8px),
+    radial-gradient(ellipse at 35% 20%, rgba(255, 237, 212, 0.6) 0%, rgba(220, 189, 149, 0.9) 70%, #ba915c 100%);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 245, 225, 0.5), inset 0 -10px 25px rgba(92, 59, 24, 0.35);
+  border: 12px solid #b88f5b;
+}
+
+.engraved-wood-title {
+  font-family: "Playfair Display", Georgia, serif;
+  color: #4a2c10;
+  text-shadow: -1px -1px 1px rgba(255, 245, 230, 0.7), 1px 2px 2px rgba(45, 25, 6, 0.65);
+}
+
+.brass-knob {
+  background: radial-gradient(circle at 35% 35%, #fff2be, #c59f48 55%, #6a4f15 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.brass-hinge {
+  background: linear-gradient(180deg, #d3b169 0%, #8c6a28 50%, #eccb82 100%);
+}
+
+.brass-cartouche {
+  background: linear-gradient(135deg, #f5e4bd 0%, #dfb770 35%, #b5833c 70%, #d8ac66 100%);
+  box-shadow: 0 6px 14px -2px rgba(40, 20, 5, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.9), inset 0 -2px 4px rgba(60, 30, 5, 0.5);
+  border: 2px solid #8c5a1a;
+}
+
+.brass-plate-inner {
+  background: #fbf5e7 linear-gradient(180deg, #fffdf8 0%, #f4e8cf 100%);
+  box-shadow: inset 1px 2px 4px rgba(45, 25, 6, 0.35), 0 1px 1px rgba(255, 255, 255, 0.6);
+  border: 1px solid #c8a36c;
+}
+
+.recessed-groove {
+  background-color: #c9a473;
+  box-shadow: inset 2px 3px 6px rgba(40, 20, 5, 0.55), inset -1px -1px 3px rgba(255, 245, 225, 0.4);
+}
+
+.parchment-sheet {
+  background: #faf4e8 linear-gradient(to bottom, #fdf9f0 0%, #f4ebd6 100%);
+  box-shadow: inset 0 0 12px rgba(175, 137, 85, 0.25), 0 4px 10px rgba(0, 0, 0, 0.15);
+  border: 1px solid #d7c39d;
+}
+
+.bg-parchment-100 {
+  background-color: #faf4e8;
+}
+
+.hover\:bg-parchment-100:hover {
+  background-color: #faf4e8;
+}
+
+.door-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.door-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.door-item.is-active-week {
+  border-color: #854d0e;
+  box-shadow: 0 0 0 3px #d97706, 0 8px 16px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+}
+
+input[type="range"].wooden-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #8b5f30;
+  border-radius: 9999px;
+  height: 10px;
+  box-shadow: inset 1px 2px 4px rgba(25, 12, 3, 0.8);
+}
+
+input[type="range"].wooden-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fde8af, #c2994c 60%, #684813 100%);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  border: 2px solid #583c13;
+}
+
+input[type="range"].wooden-slider::-moz-range-thumb {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fde8af, #c2994c 60%, #684813 100%);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  border: 2px solid #583c13;
+}
+
+/* Animation pulsation fluide pour le flux Doppler in utero */
+@keyframes fetalPulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.98); }
+  50% { opacity: 0.75; transform: scale(1.02); }
+}
+
+.fetal-halo {
+  animation: fetalPulse 1.8s infinite ease-in-out;
+}
+
+/* Barres d'animation audio onde sonore */
+@keyframes soundBar {
+  0%, 100% { height: 4px; }
+  50% { height: 18px; }
+}
+
+.sound-bar {
+  animation: soundBar 0.75s ease-in-out infinite;
+}
+.sound-bar:nth-child(2) { animation-delay: 0.12s; }
+.sound-bar:nth-child(3) { animation-delay: 0.25s; }
+.sound-bar:nth-child(4) { animation-delay: 0.38s; }
+.sound-bar:nth-child(5) { animation-delay: 0.18s; }
+
+/* Animation onde cardiaque Doppler */
+@keyframes dopplerPulse {
+  0% { transform: scale(0.95); opacity: 0.4; }
+  50% { transform: scale(1.15); opacity: 0.9; }
+  100% { transform: scale(0.95); opacity: 0.4; }
+}
+
+.doppler-ring {
+  animation: dopplerPulse 0.76s infinite ease-in-out;
+}
+
+/* Style d'accentuation dynamique mot par mot pour la transcription en direct */
+.karaoke-word {
+  transition: all 0.15s ease-out;
+  padding: 0.05rem 0.2rem;
+  border-radius: 0.25rem;
+  display: inline-block;
+}
+
+.karaoke-word.active-word {
+  background-color: #854d0e;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transform: scale(1.06);
+}
+
+.karaoke-word.past-word {
+  color: #593210;
+  font-weight: 600;
+}
