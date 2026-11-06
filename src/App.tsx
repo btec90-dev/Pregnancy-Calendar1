@@ -292,6 +292,7 @@ export function App() {
   const [loginInputEmail, setLoginInputEmail] = useState<string>('410bala@gmail.com');
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [userStatus, setUserStatus] = useState<'active' | 'pending'>('active');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -326,10 +327,43 @@ export function App() {
       setFirebaseUser(null);
       setIsGmailLoggedIn(false);
       setUserEmail('invite@gmail.com');
+      setIvfSaveToast(language === 'en' ? 'Gmail account successfully disconnected.' : 'Compte Gmail déconnecté avec succès.');
+      setTimeout(() => setIvfSaveToast(null), 3500);
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, 'auth');
     }
   };
+
+  const handleRemoveMyInfo = useCallback(async () => {
+    if (window.confirm(language === 'en' ? 'Are you sure you want to remove all your personal info, journal entries, and snapshots from this app?' : 'Êtes-vous sûr de vouloir supprimer toutes vos informations personnelles, notes de journal et captures de cette application ?')) {
+      try {
+        localStorage.removeItem('pregnancy_calendar_journal_fatou');
+        localStorage.removeItem('pregnancy_calendar_ivf_file_fatou');
+        localStorage.removeItem('pregnancy_calendar_week_overrides_fatou');
+        localStorage.removeItem('pregnancy_calendar_snapshots');
+        localStorage.removeItem('pregnancy_calendar_appointments');
+        localStorage.removeItem('pregnancy_calendar_checklists_fatou');
+        localStorage.removeItem('pregnancy_calendar_journal_last_saved');
+
+        setJournalText('');
+        setIvfFile(DEFAULT_IVF_FILE);
+        setWeekOverrides({});
+        setSnapshots([]);
+        setAppointments(DEFAULT_APPOINTMENTS);
+        setChecklists([true, true, true, false]);
+        setUserEmail('invite@gmail.com');
+        setIsGmailLoggedIn(false);
+
+        await signOut(auth);
+        setFirebaseUser(null);
+
+        setIvfSaveToast(language === 'en' ? 'All personal info successfully removed from this app.' : 'Toutes vos informations personnelles ont été supprimées avec succès de l\'application.');
+        setTimeout(() => setIvfSaveToast(null), 4000);
+      } catch (err) {
+        console.error('Error removing user info:', err);
+      }
+    }
+  }, [language]);
 
   const IVF_FILE_STORAGE_KEY = 'pregnancy_calendar_ivf_file_fatou';
   const WEEK_OVERRIDES_STORAGE_KEY = 'pregnancy_calendar_week_overrides_fatou';
@@ -1503,6 +1537,43 @@ export function App() {
       ? 'Morphologie T2'
       : 'Maturation T3';
 
+  if (userStatus === 'pending' && userEmail.toLowerCase() !== '410bala@gmail.com') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center border border-gray-200">
+          <div className="mb-4 text-amber-500 text-4xl">⏳</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Inscription en attente</h2>
+          <p className="text-gray-600 mb-6">
+            Votre compte a bien été créé. Un e-mail de validation a été envoyé à l'administrateur (<strong>410bala@gmail.com</strong>). 
+            Vous aurez accès à l'application dès que votre inscription sera approuvée.
+          </p>
+          <button
+            onClick={() => {
+              if (userEmail.toLowerCase() === '410bala@gmail.com') {
+                setUserStatus('active');
+              } else {
+                alert('Votre compte est toujours en attente d\'approbation par l\'administrateur.');
+              }
+            }}
+            className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition cursor-pointer"
+          >
+            Vérifier mon statut
+          </button>
+          <button
+            onClick={() => {
+              setIsGmailLoggedIn(false);
+              setUserEmail('');
+              handleGoogleLogout();
+            }}
+            className="mt-4 text-sm text-gray-500 hover:underline cursor-pointer"
+          >
+            Se déconnecter
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-6 px-3 sm:px-6 lg:px-8 flex flex-col items-center justify-start relative">
       <ConfettiCanvas ref={confettiRef} />
@@ -1593,18 +1664,37 @@ export function App() {
               </div>
 
               {/* Moved to the top */}
-              <div className="p-4 bg-white rounded-lg shadow border border-gray-200 text-gray-900 space-y-1.5">
+              <div className="p-4 bg-white rounded-lg shadow border border-gray-200 text-gray-900 space-y-2">
                 <h3 className="font-bold text-base text-gray-800">Gmail &amp; Confidentialité Cloud</h3>
                 <p className="text-xs text-gray-600">Gérez vos paramètres de synchronisation et de sécurité ({userEmail}).</p>
-                <div className="pt-2 flex items-center justify-end">
+                <div className="pt-2 flex items-center justify-between gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => { handleRemoveMyInfo(); setMobileMenuOpen(false); }}
+                    className="px-2.5 py-1.5 bg-rose-700 hover:bg-rose-800 text-white rounded font-bold text-[11px] shadow cursor-pointer"
+                  >
+                    Supprimer infos
+                  </button>
                   <button
                     type="button"
                     onClick={() => { setShowGmailModal(true); setMobileMenuOpen(false); }}
-                    className="px-3 py-1.5 bg-amber-800 hover:bg-amber-900 text-white rounded font-bold text-xs shadow"
+                    className="px-2.5 py-1.5 bg-amber-800 hover:bg-amber-900 text-white rounded font-bold text-[11px] shadow cursor-pointer"
                   >
-                    Gérer le compte Gmail
+                    Gérer le compte
                   </button>
                 </div>
+                {isGmailLoggedIn && (
+                  <div className="pt-2 border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => { handleGoogleLogout(); setMobileMenuOpen(false); }}
+                      className="w-full py-2 bg-stone-800 hover:bg-stone-900 text-amber-100 rounded-lg font-bold text-xs shadow flex items-center justify-center gap-1.5 cursor-pointer transition"
+                    >
+                      <span className="material-symbols-outlined text-sm">logout</span>
+                      <span>Fermer la session (Déconnexion)</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Other settings items */}
@@ -1688,33 +1778,22 @@ export function App() {
 
         {/* En-tête gravé */}
         <header className="text-center pb-6 border-b border-amber-800/25 relative">
-          {/* Barre de synchro Cloud Gmail & Sécurité pour la confidentialité */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-4 bg-amber-900/10 border border-amber-800/30 px-4 py-2 rounded-xl text-xs text-amber-950 font-medium shadow-2xs">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm text-amber-800">lock</span>
-              <span>
-                {language === 'en' ? 'Cloud Secure Sync · Privacy Protected via Gmail' : 'Dossier Cloud Sécurisé & Confidentialité via Gmail'} :{' '}
-                <strong>{userEmail}</strong>
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
-                className="px-2.5 py-1 rounded bg-amber-900/20 hover:bg-amber-900/35 text-amber-950 font-bold transition flex items-center gap-1 cursor-pointer"
-                title="Basculer Langue / Switch Language"
-              >
-                <span>{language === 'fr' ? '🇬🇧 English' : '🇫🇷 Français'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowGmailModal(true)}
-                className="px-2.5 py-1 rounded bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold transition flex items-center gap-1 cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-xs">account_circle</span>
-                <span>{language === 'en' ? 'Gmail Account' : 'Compte Gmail'}</span>
-              </button>
-            </div>
+          <div className="flex justify-between items-center mb-4">
+            <button
+              type="button"
+              onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
+              className="px-2.5 py-1 rounded bg-amber-900/20 hover:bg-amber-900/35 text-amber-950 font-bold text-xs transition flex items-center gap-1 cursor-pointer"
+            >
+              <span>{language === 'fr' ? '🇬🇧 English' : '🇫🇷 Français'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowGmailModal(true)}
+              className="px-3 py-1.5 rounded-lg bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow"
+            >
+              <span className="material-symbols-outlined text-sm">account_circle</span>
+              <span>{isGmailLoggedIn ? userEmail : (language === 'en' ? 'Gmail Account' : 'Compte Gmail')}</span>
+            </button>
           </div>
 
           {/* Modal Gmail / Google Privacy Registration */}
@@ -1724,7 +1803,7 @@ export function App() {
                 <div className="flex items-center justify-between border-b border-amber-900/20 pb-3">
                   <h3 className="font-serif font-bold text-lg text-amber-950 flex items-center gap-2">
                     <span className="material-symbols-outlined text-amber-800">mail</span>
-                    <span>{language === 'en' ? 'Gmail Registration & Cloud Privacy' : 'Inscription Gmail & Confidentialité Cloud'}</span>
+                    <span>{language === 'en' ? 'Gmail Account Management' : 'Gestion du Compte Gmail'}</span>
                   </h3>
                   <button
                     type="button"
@@ -1734,37 +1813,67 @@ export function App() {
                     ✕
                   </button>
                 </div>
-                <p className="text-xs text-amber-900/90 leading-relaxed font-serif">
-                  {language === 'en'
-                    ? 'Enter your Gmail address to securely register and sync your IVF protocol, medical files, and journal entries across all your mobile and desktop devices with end-to-end privacy.'
-                    : 'Saisissez votre adresse Gmail pour vous inscrire et synchroniser en toute sécurité votre protocole FIV, vos notes et votre dossier patient sur tous vos appareils mobiles et de bureau avec une confidentialité totale.'}
-                </p>
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-amber-950">Adresse Gmail / Google Account</label>
-                  <input
-                    type="email"
-                    value={loginInputEmail}
-                    onChange={(e) => setLoginInputEmail(e.target.value)}
-                    placeholder="ex: 410bala@gmail.com"
-                    className="w-full px-3.5 py-2 rounded-xl border border-amber-900/30 bg-white text-amber-950 text-xs focus:ring-2 focus:ring-amber-700 focus:outline-none"
-                  />
-                </div>
 
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={handleGoogleLogin}
-                    className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs shadow-md border border-amber-900/20 flex items-center justify-center gap-2 cursor-pointer transition"
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-                      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.17 21.32 7.23 24 12 24z"/>
-                      <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.39-1.49-.39-2.24s.14-1.52.39-2.24V6.61H1.18C.43 8.13 0 9.87 0 12s.43 3.87 1.18 5.39l4.09-3.15z"/>
-                      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.68 1.18 6.61l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
-                    </svg>
-                    <span>{language === 'en' ? 'Sign in with Google (Firebase Auth)' : 'Se connecter avec Google (Auth Firebase)'}</span>
-                  </button>
-                </div>
+                {isGmailLoggedIn ? (
+                  <div className="space-y-4 pt-1">
+                    <div className="p-3.5 bg-emerald-950/10 border border-emerald-600/30 rounded-xl text-xs text-emerald-950 flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                        <span>Connecté : <strong>{userEmail}</strong></span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-amber-900/90 leading-relaxed font-serif">
+                      {language === 'en'
+                        ? 'Your Gmail account is currently connected for secure cloud sync and privacy protection.'
+                        : 'Votre compte Gmail est actuellement connecté pour la synchronisation sécurisée et la protection de la confidentialité.'}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleGoogleLogout();
+                        setShowGmailModal(false);
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl bg-stone-800 hover:bg-stone-900 text-amber-100 font-bold text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition"
+                    >
+                      <span className="material-symbols-outlined text-sm">logout</span>
+                      <span>{language === 'en' ? 'Disconnect Gmail Account' : 'Déconnecter mon compte Gmail'}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4 pt-1">
+                    <p className="text-xs text-amber-900/90 leading-relaxed font-serif">
+                      {language === 'en'
+                        ? 'Enter your Gmail address or connect with Google to securely register and sync your IVF protocol and journal entries.'
+                        : 'Saisissez votre adresse Gmail ou connectez-vous avec Google pour vous inscrire et synchroniser votre protocole FIV et vos notes.'}
+                    </p>
+                    <div className="space-y-2">
+                      <label className="block text-xs font-bold text-amber-950">Adresse Gmail / Google Account</label>
+                      <input
+                        type="email"
+                        value={loginInputEmail}
+                        onChange={(e) => setLoginInputEmail(e.target.value)}
+                        placeholder="ex: 410bala@gmail.com"
+                        className="w-full px-3.5 py-2 rounded-xl border border-amber-900/30 bg-white text-amber-950 text-xs focus:ring-2 focus:ring-amber-700 focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={handleGoogleLogin}
+                        className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs shadow-md border border-amber-900/20 flex items-center justify-center gap-2 cursor-pointer transition"
+                      >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24">
+                          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.17 21.32 7.23 24 12 24z"/>
+                          <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.39-1.49-.39-2.24s.14-1.52.39-2.24V6.61H1.18C.43 8.13 0 9.87 0 12s.43 3.87 1.18 5.39l4.09-3.15z"/>
+                          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.68 1.18 6.61l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
+                        </svg>
+                        <span>{language === 'en' ? 'Sign in with Google (Firebase Auth)' : 'Se connecter avec Google (Auth Firebase)'}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-end gap-2 pt-2 border-t border-amber-900/20">
                   <button
@@ -1772,22 +1881,7 @@ export function App() {
                     onClick={() => setShowGmailModal(false)}
                     className="px-3.5 py-1.5 rounded-lg bg-amber-900/10 text-amber-950 text-xs font-semibold cursor-pointer"
                   >
-                    {language === 'en' ? 'Cancel' : 'Annuler'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (loginInputEmail.trim()) {
-                        setUserEmail(loginInputEmail.trim());
-                        setIsGmailLoggedIn(true);
-                        setShowGmailModal(false);
-                        setIvfSaveToast(language === 'en' ? 'Successfully registered & synced with Gmail!' : 'Connecté et synchronisé avec succès via Gmail !');
-                        setTimeout(() => setIvfSaveToast(null), 3500);
-                      }
-                    }}
-                    className="px-4 py-1.5 rounded-lg bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold cursor-pointer shadow"
-                  >
-                    {language === 'en' ? 'Confirm & Sync' : 'Confirmer & Synchroniser'}
+                    {language === 'en' ? 'Close' : 'Fermer'}
                   </button>
                 </div>
               </div>
