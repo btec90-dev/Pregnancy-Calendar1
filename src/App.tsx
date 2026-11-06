@@ -239,8 +239,6 @@ export interface FetalSnapshot {
   viewMode: '3d' | 'art';
 }
 
-const DUE_DATE = new Date('2027-07-22T00:00:00');
-
 interface CountdownRemaining {
   days: number;
   hours: number;
@@ -249,25 +247,9 @@ interface CountdownRemaining {
   isTerme: boolean;
 }
 
-function calculateCountdown(): CountdownRemaining {
-  const now = new Date();
-  const diffMs = DUE_DATE.getTime() - now.getTime();
-  if (diffMs <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, isTerme: true };
-  }
-  const totalSeconds = Math.floor(diffMs / 1000);
-  const totalMinutes = Math.floor(totalSeconds / 60);
-  const totalHours = Math.floor(totalMinutes / 60);
-  const days = Math.floor(totalHours / 24);
-  const hours = totalHours % 24;
-  const minutes = totalMinutes % 60;
-  const seconds = totalSeconds % 60;
-  return { days, hours, minutes, seconds, isTerme: false };
-}
-
 export function App() {
   const [currentWeek, setCurrentWeek] = useState<number>(12);
-  const [countdown, setCountdown] = useState<CountdownRemaining>(calculateCountdown);
+
   const [autoPlayVoice, setAutoPlayVoice] = useState<boolean>(true);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [voiceLabel, setVoiceLabel] = useState<string>('Voix : Humaine naturelle (fr-FR)');
@@ -322,7 +304,57 @@ export function App() {
     setPinErrorMsg(null);
   };
 
+  const DUE_DATE_STORAGE_KEY = 'pregnancy_calendar_due_date_fatou';
+  const COUNTDOWN_TITLE_STORAGE_KEY = 'pregnancy_calendar_countdown_title_fatou';
+
+  const [dueDateStr, setDueDateStr] = useState<string>(() => {
+    try {
+      return localStorage.getItem(DUE_DATE_STORAGE_KEY) || '2027-07-22T00:00';
+    } catch {
+      return '2027-07-22T00:00';
+    }
+  });
+
+  const [countdownTitle, setCountdownTitle] = useState<string>(() => {
+    try {
+      return localStorage.getItem(COUNTDOWN_TITLE_STORAGE_KEY) || 'Horloge de Gestation · Compte à Rebours du Terme';
+    } catch {
+      return 'Horloge de Gestation · Compte à Rebours du Terme';
+    }
+  });
+
+  const [isEditingCountdown, setIsEditingCountdown] = useState<boolean>(false);
+  const [editCountdownTitleInput, setEditCountdownTitleInput] = useState<string>(countdownTitle);
+  const [editDueDateInput, setEditDueDateInput] = useState<string>(dueDateStr);
+
+  const calculateCountdownCustom = useCallback((): CountdownRemaining => {
+    const target = new Date(dueDateStr);
+    const now = new Date();
+    const diffMs = target.getTime() - now.getTime();
+    if (diffMs <= 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, isTerme: true };
+    }
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const totalHours = Math.floor(totalMinutes / 60);
+    const days = Math.floor(totalHours / 24);
+    const hours = totalHours % 24;
+    const minutes = totalMinutes % 60;
+    const seconds = totalSeconds % 60;
+    return { days, hours, minutes, seconds, isTerme: false };
+  }, [dueDateStr]);
+
+  const [countdown, setCountdown] = useState<CountdownRemaining>(calculateCountdownCustom);
+
   useEffect(() => {
+    const timer = window.setInterval(() => {
+      setCountdown(calculateCountdownCustom());
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [calculateCountdownCustom]);
+
+  useEffect(() => {
+
     signOut(auth).catch(() => {});
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setFirebaseUser(user);
@@ -495,6 +527,48 @@ export function App() {
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
   const [pdfExportSuccess, setPdfExportSuccess] = useState<boolean>(false);
+
+  const SYMPTOMS_STORAGE_KEY = 'pregnancy_calendar_symptoms_fatou';
+
+  interface DailySymptoms {
+    fatigue: 'Légère' | 'Modérée' | 'Intense' | 'Aucune';
+    nausea: 'Aucune' | 'Légères' | 'Fréquentes' | 'Fortes';
+    mood: string;
+    hydration: number;
+  }
+
+  const [dailySymptoms, setDailySymptoms] = useState<DailySymptoms>(() => {
+    try {
+      const saved = localStorage.getItem(SYMPTOMS_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      fatigue: 'Modérée',
+      nausea: 'Légères',
+      mood: 'Sereine 🌿',
+      hydration: 6
+    };
+  });
+
+  const handleUpdateSymptoms = (partial: Partial<DailySymptoms>) => {
+    setDailySymptoms((prev) => {
+      const updated = { ...prev, ...partial };
+      try {
+        localStorage.setItem(SYMPTOMS_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  const handleLogSymptomsToJournal = () => {
+    const todayStr = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const symptomSnippet = `\n\n[Bilan Santé & Symptômes du ${todayStr}]\n- Fatigue : ${dailySymptoms.fatigue}\n- Nausées : ${dailySymptoms.nausea}\n- Humeur : ${dailySymptoms.mood}\n- Hydratation : ${dailySymptoms.hydration} verres d'eau\n`;
+    const newText = journalText ? journalText + symptomSnippet : symptomSnippet.trim();
+    handleJournalChange(newText);
+    setIvfSaveToast(language === 'en' ? 'Symptoms successfully logged into today\'s journal!' : 'Symptômes enregistrés avec succès dans le carnet du jour !');
+    setTimeout(() => setIvfSaveToast(null), 3500);
+  };
+
 
   const [snapshots, setSnapshots] = useState<FetalSnapshot[]>(() => {
     try {
@@ -689,12 +763,7 @@ export function App() {
     };
   }, [loadAndSelectFrenchVoice]);
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setCountdown(calculateCountdown());
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, []);
+
 
   const clearKaraokeTimer = useCallback(() => {
     if (karaokeIntervalRef.current) {
@@ -2057,12 +2126,26 @@ export function App() {
               <span className="w-2.5 h-2.5 rounded-full brass-knob border border-amber-950 absolute bottom-2 left-2 inline-block"></span>
               <span className="w-2.5 h-2.5 rounded-full brass-knob border border-amber-950 absolute bottom-2 right-2 inline-block"></span>
 
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-950/70"></span>
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-widest font-serif font-bold text-amber-950">
-                  Horloge de Gestation · Compte à Rebours du Terme
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-950/70"></span>
+              <div className="flex items-center justify-between gap-2 mb-2 px-2">
+                <div className="flex items-center gap-2 mx-auto">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-950/70"></span>
+                  <span className="text-[10px] sm:text-[11px] uppercase tracking-widest font-serif font-bold text-amber-950">
+                    {countdownTitle}
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-950/70"></span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditCountdownTitleInput(countdownTitle);
+                    setEditDueDateInput(dueDateStr);
+                    setIsEditingCountdown(true);
+                  }}
+                  className="p-1 rounded bg-amber-950/15 hover:bg-amber-950/30 text-amber-950 transition cursor-pointer"
+                  title="Modifier l'horloge et la DPA"
+                >
+                  <span className="material-symbols-outlined text-xs">edit</span>
+                </button>
               </div>
 
               {/* Cellules en laiton poli pour les chiffres */}
@@ -2144,6 +2227,31 @@ export function App() {
               </span>
             </div>
 
+            {/* Visual Progress Indicator towards Week 40 */}
+            <div className="p-3.5 bg-amber-950/90 rounded-xl text-amber-100 shadow-inner border border-amber-800/50 space-y-2">
+              <div className="flex items-center justify-between text-xs font-serif font-bold">
+                <span className="flex items-center gap-1.5 text-amber-300">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                  <span>Progression du Parcours vers la Semaine 40</span>
+                </span>
+                <span className="font-mono text-amber-200">
+                  {Math.round((currentWeek / 40) * 100)}% complété (S{currentWeek}/40)
+                </span>
+              </div>
+              <div className="w-full bg-stone-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-amber-900/60">
+                <div
+                  className="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-300 h-full rounded-full transition-all duration-500 shadow-sm"
+                  style={{ width: `${Math.min(100, Math.max(5, (currentWeek / 40) * 100))}%` }}
+                ></div>
+              </div>
+              <div className="flex justify-between text-[10px] text-amber-300/70 font-mono">
+                <span>S1 (Début)</span>
+                <span>T1 (S13)</span>
+                <span>T2 (S27)</span>
+                <span>T3 (S40)</span>
+              </div>
+            </div>
+
             {/* Grille des 40 volets */}
             <div
               className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5 sm:gap-3 p-3.5 sm:p-4 rounded-2xl recessed-groove max-h-[720px] overflow-y-auto"
@@ -2151,18 +2259,25 @@ export function App() {
             >
               {PREGNANCY_WEEKS.map((info) => {
                 const isActive = info.week === currentWeek;
+                const isPast = info.week < currentWeek;
                 return (
                   <div
                     key={info.week}
                     className={`door-item rounded-xl p-2.5 border-2 flex flex-col justify-between cursor-pointer select-none ${getDoorColor(
                       info.week
-                    )} ${isActive ? 'is-active-week' : ''}`}
+                    )} ${isActive ? 'is-active-week' : ''} ${isPast ? 'opacity-90' : ''}`}
                     data-week={info.week}
                     onClick={() => selectWeek(info.week, autoPlayVoice, info.week === 40)}
                   >
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-black font-serif">S{info.week}</span>
-                      <span className="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+                      {isPast ? (
+                        <span className="w-3.5 h-3.5 rounded-full bg-emerald-600/90 text-white flex items-center justify-center text-[10px] font-bold shadow-xs" title="Semaine passée">✓</span>
+                      ) : isActive ? (
+                        <span className="w-3 h-3 rounded-full bg-amber-500 animate-ping inline-block" title="Semaine active"></span>
+                      ) : (
+                        <span className="w-2.5 h-2.5 rounded-full brass-knob border border-amber-900 inline-block"></span>
+                      )}
                     </div>
                     <div className="text-center my-1">
                       <span className="text-2xl">{info.icon}</span>
@@ -3968,6 +4083,117 @@ export function App() {
                 </div>
               </div>
 
+              {/* SECTION SANTÉ & SYMPTÔMES DU JOUR */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-900/10 border border-amber-900/25 space-y-4">
+                <div className="flex items-center justify-between border-b border-amber-900/20 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                    <h4 className="font-serif font-bold text-base text-amber-950">
+                      🌿 Santé &amp; Symptômes du Jour
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogSymptomsToJournal}
+                    className="px-3 py-1.5 rounded-lg bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold text-xs shadow transition cursor-pointer flex items-center gap-1.5"
+                    title="Ajouter ces indicateurs directement dans le texte du carnet"
+                  >
+                    <span className="material-symbols-outlined text-sm">note_add</span>
+                    <span>Consigner dans le journal</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Fatigue */}
+                  <div className="bg-white/90 p-3 rounded-xl border border-amber-900/20 shadow-xs space-y-2">
+                    <span className="text-xs font-bold text-amber-950 flex items-center gap-1">
+                      <span>⚡</span> Fatigue
+                    </span>
+                    <div className="grid grid-cols-2 gap-1">
+                      {(['Aucune', 'Légère', 'Modérée', 'Intense'] as const).map((level) => (
+                        <button
+                          key={level}
+                          type="button"
+                          onClick={() => handleUpdateSymptoms({ fatigue: level })}
+                          className={`py-1 px-2 rounded text-[11px] font-semibold transition cursor-pointer ${
+                            dailySymptoms.fatigue === level
+                              ? 'bg-amber-700 text-white shadow'
+                              : 'bg-amber-100/70 text-amber-900 hover:bg-amber-200'
+                          }`}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Nausées */}
+                  <div className="bg-white/90 p-3 rounded-xl border border-amber-900/20 shadow-xs space-y-2">
+                    <span className="text-xs font-bold text-amber-950 flex items-center gap-1">
+                      <span>🍃</span> Nausées
+                    </span>
+                    <div className="grid grid-cols-2 gap-1">
+                      {(['Aucune', 'Légères', 'Fréquentes', 'Fortes'] as const).map((lvl) => (
+                        <button
+                          key={lvl}
+                          type="button"
+                          onClick={() => handleUpdateSymptoms({ nausea: lvl })}
+                          className={`py-1 px-2 rounded text-[11px] font-semibold transition cursor-pointer ${
+                            dailySymptoms.nausea === lvl
+                              ? 'bg-amber-700 text-white shadow'
+                              : 'bg-amber-100/70 text-amber-900 hover:bg-amber-200'
+                          }`}
+                        >
+                          {lvl}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Humeur */}
+                  <div className="bg-white/90 p-3 rounded-xl border border-amber-900/20 shadow-xs space-y-2">
+                    <span className="text-xs font-bold text-amber-950 flex items-center gap-1">
+                      <span>✨</span> Humeur &amp; Moral
+                    </span>
+                    <select
+                      value={dailySymptoms.mood}
+                      onChange={(e) => handleUpdateSymptoms({ mood: e.target.value })}
+                      className="w-full text-xs py-1.5 px-2 rounded-lg bg-amber-50 border border-amber-900/30 text-amber-950 font-semibold focus:outline-none"
+                    >
+                      <option value="Rayonnante ☀️">Rayonnante ☀️</option>
+                      <option value="Sereine 🌿">Sereine 🌿</option>
+                      <option value="Fatiguée 🌙">Fatiguée 🌙</option>
+                      <option value="Émotionnelle 💧">Émotionnelle 💧</option>
+                      <option value="Énergique ⭐">Énergique ⭐</option>
+                    </select>
+                  </div>
+
+                  {/* Hydratation */}
+                  <div className="bg-white/90 p-3 rounded-xl border border-amber-900/20 shadow-xs space-y-2">
+                    <span className="text-xs font-bold text-amber-950 flex items-center gap-1">
+                      <span>💧</span> Hydratation ({dailySymptoms.hydration} verres)
+                    </span>
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateSymptoms({ hydration: Math.max(0, dailySymptoms.hydration - 1) })}
+                        className="w-8 h-8 rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold text-sm flex items-center justify-center cursor-pointer shadow-xs"
+                      >
+                        -
+                      </button>
+                      <span className="font-mono font-bold text-sm text-amber-950">{dailySymptoms.hydration} / 10</span>
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateSymptoms({ hydration: dailySymptoms.hydration + 1 })}
+                        className="w-8 h-8 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm flex items-center justify-center cursor-pointer shadow-xs"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="relative">
                 <textarea
                   className="w-full text-xs sm:text-sm rounded-xl border border-amber-900/30 bg-white/85 p-3.5 text-amber-950 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-700/50 shadow-inner resize-y min-h-[130px]"
@@ -4123,6 +4349,65 @@ export function App() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL ÉDITION HORLOGE & DPA */}
+        {isEditingCountdown && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-xs animate-fade-in" onClick={() => setIsEditingCountdown(false)}>
+            <div className="bg-stone-950 border-2 border-amber-600/60 rounded-2xl max-w-md w-full p-6 text-amber-100 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between pb-3 border-b border-amber-900/60 mb-4">
+                <h3 className="font-serif font-bold text-base text-amber-200">Personnaliser l&apos;Horloge &amp; DPA</h3>
+                <button type="button" onClick={() => setIsEditingCountdown(false)} className="text-stone-400 hover:text-white">✕</button>
+              </div>
+
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                setCountdownTitle(editCountdownTitleInput.trim() || 'Horloge de Gestation · Compte à Rebours du Terme');
+                setDueDateStr(editDueDateInput);
+                try {
+                  localStorage.setItem(COUNTDOWN_TITLE_STORAGE_KEY, editCountdownTitleInput.trim());
+                  localStorage.setItem(DUE_DATE_STORAGE_KEY, editDueDateInput);
+                } catch {}
+                setIsEditingCountdown(false);
+              }} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-semibold text-amber-300 mb-1">Titre de l&apos;horloge / Compte à rebours</label>
+                  <input
+                    type="text"
+                    value={editCountdownTitleInput}
+                    onChange={(e) => setEditCountdownTitleInput(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-amber-700/50 text-amber-100 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-amber-300 mb-1">Date et heure de terme (DPA cible)</label>
+                  <input
+                    type="datetime-local"
+                    value={editDueDateInput}
+                    onChange={(e) => setEditDueDateInput(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-amber-700/50 text-amber-100 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingCountdown(false)}
+                    className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 transition"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold transition shadow"
+                  >
+                    Enregistrer
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
