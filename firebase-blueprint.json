@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "JournalEntry": {
+      "title": "JournalEntry",
+      "description": "Patient journal entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "text": { "type": "string", "maxLength": 10000 },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "text"]
+    },
+    "IvfFile": {
+      "title": "IvfFile",
+      "description": "Comprehensive IVF protocol and patient file",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "clinicName": { "type": "string" },
+        "clinicAddress": { "type": "string" },
+        "embryologyLab": { "type": "string" },
+        "embryologist": { "type": "string" },
+        "surgicalFacility": { "type": "string" },
+        "surgicalAddress": { "type": "string" },
+        "intervention": { "type": "string" },
+        "eggsRetrieved": { "type": "string" },
+        "matureFertilized": { "type": "string" },
+        "biopsiedVitrified": { "type": "string" },
+        "pgtaResult": { "type": "string" },
+        "medication": { "type": "string" },
+        "medStartDate": { "type": "string" },
+        "medPurpose": { "type": "string" },
+        "notesSummary": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Medical appointment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "dateStr": { "type": "string" },
+        "practitioner": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "title", "dateStr"]
+    },
+    "Snapshot": {
+      "title": "Snapshot",
+      "description": "Fetal developmental snapshot",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "week": { "type": "number" },
+        "fruit": { "type": "string" },
+        "metrics": { "type": "string" },
+        "heartRate": { "type": "number" },
+        "dataUrl": { "type": "string", "maxLength": 500000 },
+        "dateStr": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "week"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profile document"
+    },
+    "/users/{userId}/journals/{journalId}": {
+      "schema": { "$ref": "#/entities/JournalEntry" },
+      "description": "User journals collection"
+    },
+    "/users/{userId}/ivfFiles/{fileId}": {
+      "schema": { "$ref": "#/entities/IvfFile" },
+      "description": "User IVF protocol files"
+    },
+    "/users/{userId}/appointments/{appointmentId}": {
+      "schema": { "$ref": "#/entities/Appointment" },
+      "description": "User medical appointments"
+    },
+    "/users/{userId}/snapshots/{snapshotId}": {
+      "schema": { "$ref": "#/entities/Snapshot" },
+      "description": "User fetal snapshots"
+    }
+  }
+}

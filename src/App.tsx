@@ -3,6 +3,53 @@ import * as THREE from 'three';
 import { PREGNANCY_WEEKS, PregnancyWeekData } from './weeksData';
 import { ConfettiCanvas, ConfettiCanvasRef } from './ConfettiCanvas';
 import { exportJournalToPdf } from './utils/pdfExport';
+import { initializeApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, deleteDoc } from 'firebase/firestore';
+import firebaseConfig from '../firebase-applet-config.json';
+
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+export const auth = getAuth(app);
+
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+    },
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+}
+
 
 declare global {
   interface Window {
@@ -243,6 +290,46 @@ export function App() {
   const [isGmailLoggedIn, setIsGmailLoggedIn] = useState<boolean>(true);
   const [showGmailModal, setShowGmailModal] = useState<boolean>(false);
   const [loginInputEmail, setLoginInputEmail] = useState<string>('410bala@gmail.com');
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+      if (user && user.email) {
+        setUserEmail(user.email);
+        setIsGmailLoggedIn(true);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      if (result.user && result.user.email) {
+        setUserEmail(result.user.email);
+        setIsGmailLoggedIn(true);
+        setShowGmailModal(false);
+        setIvfSaveToast(language === 'en' ? 'Successfully connected with Gmail!' : 'Connecté avec succès via Gmail !');
+        setTimeout(() => setIvfSaveToast(null), 3500);
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'auth');
+    }
+  };
+
+  const handleGoogleLogout = async () => {
+    try {
+      await signOut(auth);
+      setFirebaseUser(null);
+      setIsGmailLoggedIn(false);
+      setUserEmail('invite@gmail.com');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'auth');
+    }
+  };
 
   const IVF_FILE_STORAGE_KEY = 'pregnancy_calendar_ivf_file_fatou';
   const WEEK_OVERRIDES_STORAGE_KEY = 'pregnancy_calendar_week_overrides_fatou';
@@ -1436,6 +1523,169 @@ export function App() {
           </div>
         </div>
 
+        {/* MOBILE HEADER - B&F PARCOURS LEATHER TEXTURE */}
+        <div className="block sm:hidden mb-4 leather-texture text-white shadow-md rounded-2xl border border-amber-500/40 relative overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-700 to-amber-900 border border-amber-400 flex items-center justify-center shadow-inner">
+                <span className="text-amber-200 font-bold text-sm tracking-tighter">B&amp;F</span>
+              </div>
+              <div>
+                <h1 className="text-xs font-bold tracking-wide uppercase text-amber-100">Volets des 40 Semaines</h1>
+                <p className="text-[10px] text-amber-200/80 font-medium">B&amp;F Parcours Mobile</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                className="p-2 rounded-xl bg-amber-950/80 text-amber-200 border border-amber-500/40 hover:bg-amber-900 active:scale-95 transition-all shadow cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-lg">menu</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Horizontal Category Pills Bar */}
+          <div className="bg-amber-950/90 px-3 py-2 border-t border-amber-900/40 flex items-center space-x-2 overflow-x-auto no-scrollbar text-xs">
+            <button
+              type="button"
+              onClick={() => { setActiveTab('module-ivf-file'); setMobileMenuOpen(false); }}
+              className="whitespace-nowrap px-3 py-1 rounded-full font-semibold bg-amber-500 text-amber-950 shadow-sm transition flex-shrink-0 cursor-pointer"
+            >
+              ✨ Tous les Volets
+            </button>
+            <button
+              type="button"
+              onClick={() => { selectWeek(6, autoPlayVoice); setMobileMenuOpen(false); }}
+              className="whitespace-nowrap px-3 py-1 rounded-full font-medium bg-amber-900/60 text-amber-100 border border-amber-600/40 hover:bg-amber-800 transition flex-shrink-0 cursor-pointer"
+            >
+              🌱 Trimestre 1 (S1-S13)
+            </button>
+            <button
+              type="button"
+              onClick={() => { selectWeek(20, autoPlayVoice); setMobileMenuOpen(false); }}
+              className="whitespace-nowrap px-3 py-1 rounded-full font-medium bg-amber-900/60 text-amber-100 border border-amber-600/40 hover:bg-amber-800 transition flex-shrink-0 cursor-pointer"
+            >
+              🌿 Trimestre 2 (S14-S27)
+            </button>
+            <button
+              type="button"
+              onClick={() => { selectWeek(34, autoPlayVoice); setMobileMenuOpen(false); }}
+              className="whitespace-nowrap px-3 py-1 rounded-full font-medium bg-amber-900/60 text-amber-100 border border-amber-600/40 hover:bg-amber-800 transition flex-shrink-0 cursor-pointer"
+            >
+              🌳 Trimestre 3 (S28-S40)
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('module-fet'); setMobileMenuOpen(false); }}
+              className="whitespace-nowrap px-3 py-1 rounded-full font-medium bg-rose-950/80 text-rose-200 border border-rose-500/40 hover:bg-rose-900 transition flex-shrink-0 cursor-pointer"
+            >
+              💙 Jalons &amp; FET
+            </button>
+          </div>
+
+          {mobileMenuOpen && (
+            <div id="settings-menu" className="p-3 bg-stone-950 border-t border-amber-800/50 space-y-3 text-xs animate-fade-in">
+              <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+                <span className="font-bold text-amber-300">Menu &amp; Paramètres</span>
+                <button type="button" onClick={() => setMobileMenuOpen(false)} className="text-stone-400 hover:text-white">✕</button>
+              </div>
+
+              {/* Moved to the top */}
+              <div className="p-4 bg-white rounded-lg shadow border border-gray-200 text-gray-900 space-y-1.5">
+                <h3 className="font-bold text-base text-gray-800">Gmail &amp; Confidentialité Cloud</h3>
+                <p className="text-xs text-gray-600">Gérez vos paramètres de synchronisation et de sécurité ({userEmail}).</p>
+                <div className="pt-2 flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={() => { setShowGmailModal(true); setMobileMenuOpen(false); }}
+                    className="px-3 py-1.5 bg-amber-800 hover:bg-amber-900 text-white rounded font-bold text-xs shadow"
+                  >
+                    Gérer le compte Gmail
+                  </button>
+                </div>
+              </div>
+
+              {/* Other settings items */}
+              <div className="p-4 bg-white rounded-lg shadow border border-gray-200 text-gray-900 space-y-1.5">
+                <h3 className="font-bold text-base text-gray-800">Préférences Générales</h3>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs text-gray-600">Langue de l'interface</span>
+                  <button
+                    type="button"
+                    onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
+                    className="px-2.5 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-semibold text-xs"
+                  >
+                    {language === 'fr' ? 'Français 🇫🇷' : 'English 🇬🇧'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <span className="font-bold text-amber-200 block mb-1.5">⚡ Sélecteur Rapide des 40 Semaines :</span>
+                <div className="grid grid-cols-8 gap-1 max-h-36 overflow-y-auto p-1 bg-stone-900 rounded-xl">
+                  {PREGNANCY_WEEKS.map((w) => (
+                    <button
+                      key={w.week}
+                      type="button"
+                      onClick={() => {
+                        selectWeek(w.week, autoPlayVoice);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`py-1.5 rounded text-[11px] font-mono font-bold transition cursor-pointer ${
+                        currentWeek === w.week
+                          ? 'bg-amber-500 text-stone-950 shadow'
+                          : 'bg-stone-800 text-amber-200 hover:bg-stone-700'
+                      }`}
+                    >
+                      {w.week}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab('module-ivf-file'); setMobileMenuOpen(false); }}
+                  className="p-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-amber-200 font-medium text-left"
+                >
+                  📋 Dossier Patient
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab('module-fet'); setMobileMenuOpen(false); }}
+                  className="p-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-amber-200 font-medium text-left"
+                >
+                  🔬 Calculateur FET
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab('module-timeline'); setMobileMenuOpen(false); }}
+                  className="p-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-amber-200 font-medium text-left"
+                >
+                  📅 Chronologie S1-S40
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab('module-checklists'); setMobileMenuOpen(false); }}
+                  className="p-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-amber-200 font-medium text-left"
+                >
+                  ✅ Checklists &amp; RDV
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab('module-journal'); setMobileMenuOpen(false); }}
+                  className="p-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-amber-200 font-medium col-span-2 text-left"
+                >
+                  📖 Carnet Intime de Fatou
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* En-tête gravé */}
         <header className="text-center pb-6 border-b border-amber-800/25 relative">
           {/* Barre de synchro Cloud Gmail & Sécurité pour la confidentialité */}
@@ -1499,6 +1749,23 @@ export function App() {
                     className="w-full px-3.5 py-2 rounded-xl border border-amber-900/30 bg-white text-amber-950 text-xs focus:ring-2 focus:ring-amber-700 focus:outline-none"
                   />
                 </div>
+
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs shadow-md border border-amber-900/20 flex items-center justify-center gap-2 cursor-pointer transition"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.17 21.32 7.23 24 12 24z"/>
+                      <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.39-1.49-.39-2.24s.14-1.52.39-2.24V6.61H1.18C.43 8.13 0 9.87 0 12s.43 3.87 1.18 5.39l4.09-3.15z"/>
+                      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.68 1.18 6.61l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
+                    </svg>
+                    <span>{language === 'en' ? 'Sign in with Google (Firebase Auth)' : 'Se connecter avec Google (Auth Firebase)'}</span>
+                  </button>
+                </div>
+
                 <div className="flex items-center justify-end gap-2 pt-2 border-t border-amber-900/20">
                   <button
                     type="button"

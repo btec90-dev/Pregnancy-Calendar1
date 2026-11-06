@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /journals/{journalId} {
+        allow read, write, create, update, delete: if isOwner(userId);
+      }
+
+      match /ivfFiles/{fileId} {
+        allow read, write, create, update, delete: if isOwner(userId);
+      }
+
+      match /appointments/{appointmentId} {
+        allow read, write, create, update, delete: if isOwner(userId);
+      }
+
+      match /snapshots/{snapshotId} {
+        allow read, write, create, update, delete: if isOwner(userId);
+      }
+    }
+  }
+}
