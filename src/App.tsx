@@ -286,15 +286,16 @@ export function App() {
 
   const [activeTab, setActiveTab] = useState<'module-fet' | 'module-timeline' | 'module-checklists' | 'module-journal' | 'module-ivf-file'>('module-ivf-file');
   const [language, setLanguage] = useState<'fr' | 'en'>('fr');
-  const [userEmail, setUserEmail] = useState<string>('410bala@gmail.com');
-  const [isGmailLoggedIn, setIsGmailLoggedIn] = useState<boolean>(true);
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [isGmailLoggedIn, setIsGmailLoggedIn] = useState<boolean>(false);
   const [showGmailModal, setShowGmailModal] = useState<boolean>(false);
-  const [loginInputEmail, setLoginInputEmail] = useState<string>('410bala@gmail.com');
+  const [loginInputEmail, setLoginInputEmail] = useState<string>('');
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [userStatus, setUserStatus] = useState<'active' | 'pending'>('active');
 
   useEffect(() => {
+    signOut(auth).catch(() => {});
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setFirebaseUser(user);
       if (user && user.email) {
